@@ -565,18 +565,6 @@
             padding: 20px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             width: 320px;
-            animation: slideInRight 0.5s ease-out;
-        }
-
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
         }
 
         .route-form {
@@ -605,12 +593,27 @@
             transition: all 0.3s ease;
         }
 
+        /* Custom Select Styling */
+        .form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .form-group select option {
+            background: var(--dark);
+            color: white;
+            padding: 10px;
+        }
+
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
             border-color: var(--neon-pink);
             box-shadow: 0 0 0 2px rgba(255, 45, 149, 0.3);
-            transform: scale(1.02);
         }
 
         .location-buttons {
@@ -668,11 +671,22 @@
             margin-top: 20px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             display: none;
-            animation: fadeInUp 0.5s ease-out;
         }
 
         .route-info.active {
             display: block;
+            animation: slideInUp 0.5s ease;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .route-details {
@@ -687,6 +701,11 @@
             padding: 15px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .route-detail:hover {
+            transform: scale(1.05);
         }
 
         .route-detail h4 {
@@ -700,56 +719,13 @@
             font-weight: 700;
         }
 
-        /* Styling khusus untuk select dropdown */
-        select {
-            background: var(--glass-dark) !important;
-            color: white !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        }
-
-        select option {
-            background: var(--dark) !important;
-            color: white !important;
-            padding: 12px !important;
-        }
-
-        select:focus {
-            background: var(--glass-dark) !important;
-            color: white !important;
-        }
-
-        /* Leaflet styling untuk peta yang lebih mirip Google Maps */
-        .leaflet-container {
-            background: #1e1e1e !important;
-        }
-
-        .leaflet-control-zoom a {
-            background: var(--glass-dark) !important;
-            color: white !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        }
-
-        .leaflet-control-zoom a:hover {
-            background: var(--glass) !important;
-        }
-
-        .leaflet-popup-content-wrapper {
-            background: var(--glass-dark) !important;
-            color: white !important;
-            border-radius: 10px !important;
-            backdrop-filter: blur(20px) !important;
-        }
-
-        .leaflet-popup-tip {
-            background: var(--glass-dark) !important;
-        }
-
+        /* Leaflet Routing Machine Custom Styling */
         .leaflet-routing-container {
             background: var(--glass-dark) !important;
-            color: white !important;
-            border-radius: 10px !important;
             backdrop-filter: blur(20px) !important;
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 15px !important;
+            color: white !important;
         }
 
         .leaflet-routing-alt {
@@ -761,8 +737,40 @@
             color: white !important;
         }
 
+        .leaflet-routing-alt table {
+            color: white !important;
+        }
+
         .leaflet-routing-alt tr:hover {
             background: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .leaflet-routing-geocoders {
+            padding: 15px !important;
+        }
+
+        .leaflet-routing-geocoders input {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 8px !important;
+            color: white !important;
+            padding: 10px !important;
+            margin-bottom: 10px !important;
+        }
+
+        .leaflet-routing-geocoders button {
+            background: var(--gradient) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 10px 15px !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .leaflet-routing-geocoders button:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 5px 15px rgba(255, 45, 149, 0.4) !important;
         }
 
         /* Footer - Gen Z Style */
@@ -848,6 +856,17 @@
         .animate-on-scroll.animated {
             opacity: 1;
             transform: translateY(0);
+        }
+
+        /* Pulse Animation */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         /* Responsive Design */
@@ -1260,8 +1279,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; Tanah beremas, aiq bening, gunung malekat 🌺
-Lombok bukan cuma tempat — tapi rasa 🏝️💚✨</p>
+                <p>&copy; 2024 Visit Lombok. No cap, all rights reserved. Made with 💖 for the Gen Z squad</p>
             </div>
         </div>
     </footer>
@@ -1311,13 +1329,14 @@ Lombok bukan cuma tempat — tapi rasa 🏝️💚✨</p>
         let routeLine;
 
         function initMap() {
-            // Initialize map centered on Lombok with Google Maps-like style
+            // Initialize map centered on Lombok
             map = L.map('map').setView([-8.6500, 116.3167], 10);
             
-            // Add Google Maps-like tile layer
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 19
+            // Add Google Maps-like tiles
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 20
             }).addTo(map);
             
             // Define popular destinations
@@ -1333,17 +1352,68 @@ Lombok bukan cuma tempat — tapi rasa 🏝️💚✨</p>
             Object.keys(destinations).forEach(dest => {
                 const coords = destinations[dest];
                 const customIcon = L.divIcon({
-                    html: `<div style="background: var(--gradient); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid white;">📍</div>`,
+                    html: `<div style="background: var(--gradient); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">📍</div>`,
                     className: 'custom-marker',
                     iconSize: [40, 40],
-                    iconAnchor: [20, 20]
+                    iconAnchor: [20, 40]
                 });
                 
-                L.marker(coords, {icon: customIcon})
+                const marker = L.marker(coords, {icon: customIcon})
                     .addTo(map)
-                    .bindPopup(`<div style="color: white;"><b>${dest}</b><br><button class="btn set-destination" style="margin-top: 10px; padding: 8px 16px; font-size: 0.8rem; background: var(--gradient); border: none; border-radius: 20px; color: white; cursor: pointer;">Take me there! 🚀</button></div>`)
-                    .openPopup();
+                    .bindPopup(`
+                        <div style="background: var(--glass-dark); backdrop-filter: blur(20px); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); color: white;">
+                            <h3 style="margin: 0 0 10px 0; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${dest}</h3>
+                            <button class="set-destination" style="background: var(--gradient); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; transition: all 0.3s ease;">
+                                Take me there! 🚀
+                            </button>
+                        </div>
+                    `);
+                
+                // Add hover animation
+                marker.on('mouseover', function() {
+                    this.openPopup();
+                });
             });
+            
+            // Initialize Leaflet Routing Machine
+            routingControl = L.Routing.control({
+                waypoints: [],
+                routeWhileDragging: false,
+                showAlternatives: false,
+                lineOptions: {
+                    styles: [
+                        {color: '#ff2d95', opacity: 0.8, weight: 6},
+                        {color: '#8a2be2', opacity: 0.6, weight: 8},
+                        {color: '#00f5ff', opacity: 0.4, weight: 10}
+                    ],
+                    extendToWaypoints: true,
+                    missingRouteTolerance: 10
+                },
+                altLineOptions: {
+                    styles: [
+                        {color: '#ff2d95', opacity: 0.6, weight: 4},
+                        {color: '#8a2be2', opacity: 0.4, weight: 6}
+                    ]
+                },
+                createMarker: function(i, waypoint, n) {
+                    return L.marker(waypoint.latLng, {
+                        icon: L.divIcon({
+                            html: i === 0 ? 
+                                '<div style="background: #00ff88; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white;"></div>' :
+                                '<div style="background: #ff2d95; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white;"></div>',
+                            className: 'waypoint-marker',
+                            iconSize: [20, 20]
+                        })
+                    });
+                },
+                show: false,
+                autoRoute: true,
+                fitSelectedRoutes: true,
+                showAlternatives: false
+            }).addTo(map);
+            
+            // Hide routing control by default
+            routingControl.getContainer().style.display = 'none';
             
             // Event listeners
             setupEventListeners();
@@ -1378,9 +1448,10 @@ Lombok bukan cuma tempat — tapi rasa 🏝️💚✨</p>
                     // Set destination in dropdown
                     document.getElementById('destination').value = card.getAttribute('data-location');
                     
-                    // Center map on destination with animation
+                    // Center map on destination with smooth animation
                     map.flyTo([parseFloat(location[0]), parseFloat(location[1])], 13, {
-                        duration: 1.5
+                        duration: 1.5,
+                        easeLinearity: 0.25
                     });
                 });
             });
@@ -1395,6 +1466,12 @@ Lombok bukan cuma tempat — tapi rasa 🏝️💚✨</p>
                         const marker = e.popup._source;
                         const coords = marker.getLatLng();
                         document.getElementById('destination').value = `${coords.lat},${coords.lng}`;
+                        
+                        // Add pulse animation to button
+                        this.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            this.style.transform = 'scale(1)';
+                        }, 150);
                     });
                 }
             });
@@ -1402,10 +1479,16 @@ Lombok bukan cuma tempat — tapi rasa 🏝️💚✨</p>
 
         function detectUserLocation() {
             const locationInput = document.getElementById('start-location');
+            const detectBtn = document.getElementById('detect-location');
+            
             locationInput.value = 'Detecting your location... 🕵️';
+            detectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detecting...';
+            detectBtn.disabled = true;
             
             if (!navigator.geolocation) {
                 locationInput.value = 'Geolocation not supported 😔';
+                detectBtn.innerHTML = '<i class="fas fa-crosshairs"></i> Detect Me';
+                detectBtn.disabled = false;
                 return;
             }
             
@@ -1421,19 +1504,26 @@ Lombok bukan cuma tempat — tapi rasa 🏝️💚✨</p>
                         map.removeLayer(userMarker);
                     }
                     
-                    // Add user location marker
-                    userMarker = L.marker(userLocation)
-                        .addTo(map)
-                        .bindPopup('<b>You are here! 👋</b>')
-                        .openPopup();
+                    // Add user location marker with animation
+                    userMarker = L.marker(userLocation, {
+                        icon: L.divIcon({
+                            html: '<div style="background: #00ff88; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 20px #00ff88; animation: pulse 2s infinite;"></div>',
+                            className: 'user-location-marker',
+                            iconSize: [30, 30]
+                        })
+                    }).addTo(map);
                     
                     // Update location input
                     locationInput.value = `Lat: ${userLocation[0].toFixed(4)}, Lng: ${userLocation[1].toFixed(4)}`;
                     
-                    // Center map on user location with animation
+                    // Center map on user location with smooth animation
                     map.flyTo(userLocation, 13, {
-                        duration: 1.5
+                        duration: 1.5,
+                        easeLinearity: 0.25
                     });
+                    
+                    detectBtn.innerHTML = '<i class="fas fa-crosshairs"></i> Detect Me';
+                    detectBtn.disabled = false;
                 },
                 function(error) {
                     let errorMessage = 'Failed to detect location 😅';
@@ -1451,10 +1541,12 @@ Lombok bukan cuma tempat — tapi rasa 🏝️💚✨</p>
                     }
                     
                     locationInput.value = errorMessage;
+                    detectBtn.innerHTML = '<i class="fas fa-crosshairs"></i> Detect Me';
+                    detectBtn.disabled = false;
                 },
                 {
                     enableHighAccuracy: true,
-                    timeout: 10000,
+                    timeout: 15000,
                     maximumAge: 60000
                 }
             );
@@ -1480,23 +1572,28 @@ Lombok bukan cuma tempat — tapi rasa 🏝️💚✨</p>
             }
             
             // Add user location marker
-            userMarker = L.marker(coords)
-                .addTo(map)
-                .bindPopup('<b>Your spot! 🎯</b>')
-                .openPopup();
+            userMarker = L.marker(coords, {
+                icon: L.divIcon({
+                    html: '<div style="background: #00ff88; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 20px #00ff88;"></div>',
+                    className: 'user-location-marker',
+                    iconSize: [30, 30]
+                })
+            }).addTo(map);
             
             // Update location input
             document.getElementById('start-location').value = `Lat: ${coords[0].toFixed(4)}, Lng: ${coords[1].toFixed(4)}`;
             
             // Center map on location with animation
             map.flyTo(coords, 13, {
-                duration: 1.5
+                duration: 1.5,
+                easeLinearity: 0.25
             });
         }
 
         function calculateRoute() {
             const destinationSelect = document.getElementById('destination');
             const destinationCoords = destinationSelect.value.split(',');
+            const calculateBtn = document.getElementById('calculate-route');
             
             if (!userLocation) {
                 alert('Please set your location first! 📍');
@@ -1513,70 +1610,61 @@ Lombok bukan cuma tempat — tapi rasa 🏝️💚✨</p>
                 parseFloat(destinationCoords[1])
             ];
             
+            // Show loading state
+            calculateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating...';
+            calculateBtn.disabled = true;
+            
             // Clear previous route
-            if (routeLine) {
-                map.removeLayer(routeLine);
+            if (routingControl) {
+                routingControl.getContainer().style.display = 'none';
+                routingControl.setWaypoints([]);
             }
             
-            // Calculate distance (simplified calculation)
-            const distance = calculateDistance(userLocation, destination);
-            const transportMode = document.getElementById('transport-mode').value;
+            // Set waypoints for routing
+            routingControl.setWaypoints([
+                L.latLng(userLocation[0], userLocation[1]),
+                L.latLng(destination[0], destination[1])
+            ]);
             
-            // Calculate estimated time based on transport mode
-            let speed;
-            switch(transportMode) {
-                case 'car': speed = 60; break;
-                case 'motorcycle': speed = 40; break;
-                case 'bicycle': speed = 15; break;
-                case 'foot': speed = 5; break;
-                default: speed = 30;
-            }
+            // Show routing control
+            routingControl.getContainer().style.display = 'block';
             
-            const duration = (distance / speed) * 60; // in minutes
+            // Fit map to route
+            map.fitBounds(routingControl.getWaypoints(), { padding: [20, 20] });
             
-            // Draw route line with animation
-            routeLine = L.polyline([userLocation, destination], {
-                color: '#ff2d95',
-                weight: 5,
-                opacity: 0.7,
-                dashArray: '10, 10'
-            }).addTo(map);
-            
-            // Fit map to show both points with animation
-            map.flyToBounds([userLocation, destination], {
-                padding: [20, 20],
-                duration: 1.5
+            // Listen for route found event
+            routingControl.on('routesfound', function(e) {
+                const routes = e.routes;
+                const route = routes[0];
+                
+                // Update route info
+                updateRouteInfo(route);
+                
+                // Reset button
+                calculateBtn.innerHTML = '<i class="fas fa-route"></i> Get Route';
+                calculateBtn.disabled = false;
             });
             
-            // Update route info
-            updateRouteInfo(distance, duration, transportMode);
+            // Handle errors
+            routingControl.on('routingerror', function(e) {
+                alert('Could not calculate route. Please try again! 😅');
+                calculateBtn.innerHTML = '<i class="fas fa-route"></i> Get Route';
+                calculateBtn.disabled = false;
+            });
         }
 
-        function calculateDistance(coord1, coord2) {
-            // Haversine formula to calculate distance between two coordinates
-            const R = 6371; // Earth's radius in km
-            const dLat = (coord2[0] - coord1[0]) * Math.PI / 180;
-            const dLon = (coord2[1] - coord1[1]) * Math.PI / 180;
-            const a = 
-                Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(coord1[0] * Math.PI / 180) * Math.cos(coord2[0] * Math.PI / 180) *
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-
-        function updateRouteInfo(distance, duration, transportMode) {
+        function updateRouteInfo(route) {
             const routeInfo = document.getElementById('route-info');
             const distanceEl = document.getElementById('distance');
             const durationEl = document.getElementById('duration');
             const transportModeDisplay = document.getElementById('transport-mode-display');
             
-            // Show route info
+            // Show route info with animation
             routeInfo.classList.add('active');
             
             // Update info
-            distanceEl.textContent = distance.toFixed(1) + ' km';
-            durationEl.textContent = Math.round(duration) + ' menit';
+            distanceEl.textContent = (route.summary.totalDistance / 1000).toFixed(1) + ' km';
+            durationEl.textContent = Math.round(route.summary.totalTime / 60) + ' menit';
             
             // Update transport mode
             const modeNames = {
@@ -1585,14 +1673,15 @@ Lombok bukan cuma tempat — tapi rasa 🏝️💚✨</p>
                 'bicycle': 'Sepeda 🚲',
                 'foot': 'Jalan Kaki 🚶'
             };
-            transportModeDisplay.textContent = modeNames[transportMode];
+            const mode = document.getElementById('transport-mode').value;
+            transportModeDisplay.textContent = modeNames[mode];
         }
 
         function clearRoute() {
-            // Clear route line
-            if (routeLine) {
-                map.removeLayer(routeLine);
-                routeLine = null;
+            // Clear route
+            if (routingControl) {
+                routingControl.getContainer().style.display = 'none';
+                routingControl.setWaypoints([]);
             }
             
             // Hide route info
@@ -1680,7 +1769,7 @@ Lombok bukan cuma tempat — tapi rasa 🏝️💚✨</p>
             
             reviews.forEach(review => {
                 const reviewCard = document.createElement('div');
-                reviewCard.className = 'review-card';
+                reviewCard.className = 'review-card animate-on-scroll';
                 
                 const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
                 
@@ -1698,6 +1787,9 @@ Lombok bukan cuma tempat — tapi rasa 🏝️💚✨</p>
                 
                 reviewsList.appendChild(reviewCard);
             });
+            
+            // Trigger animation for new reviews
+            checkScroll();
         }
 
         // Initialize everything when page loads
