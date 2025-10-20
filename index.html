@@ -565,6 +565,18 @@
             padding: 20px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             width: 320px;
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         .route-form {
@@ -598,6 +610,7 @@
             outline: none;
             border-color: var(--neon-pink);
             box-shadow: 0 0 0 2px rgba(255, 45, 149, 0.3);
+            transform: scale(1.02);
         }
 
         .location-buttons {
@@ -655,6 +668,7 @@
             margin-top: 20px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             display: none;
+            animation: fadeInUp 0.5s ease-out;
         }
 
         .route-info.active {
@@ -684,6 +698,71 @@
         .route-detail p {
             font-size: 1.2rem;
             font-weight: 700;
+        }
+
+        /* Styling khusus untuk select dropdown */
+        select {
+            background: var(--glass-dark) !important;
+            color: white !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        select option {
+            background: var(--dark) !important;
+            color: white !important;
+            padding: 12px !important;
+        }
+
+        select:focus {
+            background: var(--glass-dark) !important;
+            color: white !important;
+        }
+
+        /* Leaflet styling untuk peta yang lebih mirip Google Maps */
+        .leaflet-container {
+            background: #1e1e1e !important;
+        }
+
+        .leaflet-control-zoom a {
+            background: var(--glass-dark) !important;
+            color: white !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .leaflet-control-zoom a:hover {
+            background: var(--glass) !important;
+        }
+
+        .leaflet-popup-content-wrapper {
+            background: var(--glass-dark) !important;
+            color: white !important;
+            border-radius: 10px !important;
+            backdrop-filter: blur(20px) !important;
+        }
+
+        .leaflet-popup-tip {
+            background: var(--glass-dark) !important;
+        }
+
+        .leaflet-routing-container {
+            background: var(--glass-dark) !important;
+            color: white !important;
+            border-radius: 10px !important;
+            backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .leaflet-routing-alt {
+            background: transparent !important;
+            color: white !important;
+        }
+
+        .leaflet-routing-alt h2 {
+            color: white !important;
+        }
+
+        .leaflet-routing-alt tr:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
         }
 
         /* Footer - Gen Z Style */
@@ -1181,7 +1260,8 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 💖visitlombok.id💖 Lombok endah, tanah beremas, aiq bening, gunung malekat.</p>
+                <p>&copy; Tanah beremas, aiq bening, gunung malekat 🌺
+Lombok bukan cuma tempat — tapi rasa 🏝️💚✨</p>
             </div>
         </div>
     </footer>
@@ -1231,12 +1311,13 @@
         let routeLine;
 
         function initMap() {
-            // Initialize map centered on Lombok
+            // Initialize map centered on Lombok with Google Maps-like style
             map = L.map('map').setView([-8.6500, 116.3167], 10);
             
-            // Add dark theme map tiles
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            // Add Google Maps-like tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19
             }).addTo(map);
             
             // Define popular destinations
@@ -1252,14 +1333,15 @@
             Object.keys(destinations).forEach(dest => {
                 const coords = destinations[dest];
                 const customIcon = L.divIcon({
-                    html: `<div style="background: var(--gradient); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">📍</div>`,
+                    html: `<div style="background: var(--gradient); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid white;">📍</div>`,
                     className: 'custom-marker',
-                    iconSize: [30, 30]
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 20]
                 });
                 
                 L.marker(coords, {icon: customIcon})
                     .addTo(map)
-                    .bindPopup(`<b>${dest}</b><br><button class="btn set-destination" style="margin-top: 10px; padding: 8px 16px; font-size: 0.8rem;">Take me there! 🚀</button>`)
+                    .bindPopup(`<div style="color: white;"><b>${dest}</b><br><button class="btn set-destination" style="margin-top: 10px; padding: 8px 16px; font-size: 0.8rem; background: var(--gradient); border: none; border-radius: 20px; color: white; cursor: pointer;">Take me there! 🚀</button></div>`)
                     .openPopup();
             });
             
@@ -1296,8 +1378,10 @@
                     // Set destination in dropdown
                     document.getElementById('destination').value = card.getAttribute('data-location');
                     
-                    // Center map on destination
-                    map.setView([parseFloat(location[0]), parseFloat(location[1])], 13);
+                    // Center map on destination with animation
+                    map.flyTo([parseFloat(location[0]), parseFloat(location[1])], 13, {
+                        duration: 1.5
+                    });
                 });
             });
             
@@ -1346,8 +1430,10 @@
                     // Update location input
                     locationInput.value = `Lat: ${userLocation[0].toFixed(4)}, Lng: ${userLocation[1].toFixed(4)}`;
                     
-                    // Center map on user location
-                    map.setView(userLocation, 13);
+                    // Center map on user location with animation
+                    map.flyTo(userLocation, 13, {
+                        duration: 1.5
+                    });
                 },
                 function(error) {
                     let errorMessage = 'Failed to detect location 😅';
@@ -1402,8 +1488,10 @@
             // Update location input
             document.getElementById('start-location').value = `Lat: ${coords[0].toFixed(4)}, Lng: ${coords[1].toFixed(4)}`;
             
-            // Center map on location
-            map.setView(coords, 13);
+            // Center map on location with animation
+            map.flyTo(coords, 13, {
+                duration: 1.5
+            });
         }
 
         function calculateRoute() {
@@ -1446,7 +1534,7 @@
             
             const duration = (distance / speed) * 60; // in minutes
             
-            // Draw route line
+            // Draw route line with animation
             routeLine = L.polyline([userLocation, destination], {
                 color: '#ff2d95',
                 weight: 5,
@@ -1454,8 +1542,11 @@
                 dashArray: '10, 10'
             }).addTo(map);
             
-            // Fit map to show both points
-            map.fitBounds([userLocation, destination]);
+            // Fit map to show both points with animation
+            map.flyToBounds([userLocation, destination], {
+                padding: [20, 20],
+                duration: 1.5
+            });
             
             // Update route info
             updateRouteInfo(distance, duration, transportMode);
