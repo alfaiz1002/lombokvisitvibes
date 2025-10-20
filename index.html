@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visit Lombok - No Cap, Best Place Fr! 🌴</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <style>
+        /* Gen Z Style Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --neon-pink: #ff2d95;
+            --violet: #8a2be2;
+            --electric-blue: #00f5ff;
+            --lime: #00ff88;
+            --dark: #0f0f0f;
+            --light: #f8fafc;
+            --gradient: linear-gradient(135deg, #ff2d95, #8a2be2, #00f5ff);
+            --gradient2: linear-gradient(135deg, #00ff88, #00f5ff, #ff2d95);
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-dark: rgba(15, 15, 15, 0.8);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--dark);
+            color: white;
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 45, 149, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 245, 255, 0.1) 0%, transparent 20%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        section {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-title h2 {
+            font-size: 3rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        .section-title p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        /* Gen Z Buttons */
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: var(--gradient);
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient2);
+            transition: all 0.4s ease;
+        }
+
+        .btn:hover::before {
+            left: 0;
+        }
+
+        .btn span {
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 45, 149, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--neon-pink);
+            color: var(--neon-pink);
+        }
+
+        .btn-secondary:hover {
+            background: var(--neon-pink);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 10px 24px;
+            font-size: 0.9rem;
+        }
+
+        /* Header & Navigation - Gen Z Style */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: var(--glass-dark);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        header.scrolled {
+            background: rgba(15, 15, 15, 0.95);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 900;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo i {
+            font-size: 2.2rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 8px 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: var(--neon-pink);
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        /* Hero Section - Gen Z Vibes */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(15, 15, 15, 0.8), rgba(15, 15, 15, 0.9)), 
+                        url('https://images.unsplash.com/photo-1559661175-2db6a6d82f20?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            font-weight: 900;
+            line-height: 1.1;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.4rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Floating Elements */
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Destinations Section - Gen Z Grid */
+        .destinations {
+            background: var(--dark);
+            position: relative;
+        }
+
+        .destination-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .destination-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .destination-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 1;
+        }
+
+        .destination-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .destination-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--neon-pink);
+            box-shadow: 0 20px 40px rgba(255, 45, 149, 0.2);
+        }
+
+        .destination-image {
+            height: 220px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .destination-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .destination-card:hover .destination-image img {
+            transform: scale(1.1);
+        }
+
+        .destination-info {
+            padding: 25px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .destination-info h3 {
+            font-size: 1.6rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .destination-info p {
+            margin-bottom: 15px;
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .destination-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stars {
+            color: #ffd700;
+            font-size: 1rem;
+        }
+
+        .price {
+            font-weight: 700;
+            font-size: 1.2rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .destination-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .detail-item i {
+            color: var(--neon-pink);
+        }
+
+        /* Reviews Section */
+        .reviews-section {
+            background: var(--dark);
+            padding: 80px 0;
+        }
+
+        .reviews-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .review-form {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .review-form h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 0 2px rgba(255, 45, 149, 0.3);
+        }
+
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .star-rating .star {
+            font-size: 2rem;
+            color: #444;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .star-rating .star.active {
+            color: #ffd700;
+        }
+
+        .star-rating .star:hover {
+            color: #ffd700;
+        }
+
+        .reviews-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .review-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .reviewer-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .review-date {
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        .review-rating {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .review-text {
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        /* Map Section - Gen Z Style */
+        .map-section {
+            padding: 80px 0;
+            background: var(--dark);
+        }
+
+        .map-container {
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            height: 600px;
+            margin-bottom: 30px;
+            position: relative;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+            border-radius: 18px;
+        }
+
+        .map-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--glass-dark);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 320px;
+        }
+
+        .route-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 0 2px rgba(255, 45, 149, 0.3);
+        }
+
+        .location-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .location-btn {
+            padding: 8px 15px;
+            background: var(--glass);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .location-btn:hover {
+            background: var(--neon-pink);
+            transform: translateY(-2px);
+        }
+
+        .route-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .route-btn {
+            padding: 12px 20px;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .route-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 45, 149, 0.4);
+        }
+
+        .route-info {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+
+        .route-info.active {
+            display: block;
+        }
+
+        .route-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .route-detail {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .route-detail h4 {
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+
+        .route-detail p {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* Footer - Gen Z Style */
+        footer {
+            background: var(--glass-dark);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 60px 0 20px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .footer-column p {
+            margin-bottom: 20px;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            background: var(--glass);
+            border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .social-links a:hover {
+            background: var(--gradient);
+            transform: translateY(-3px) scale(1.1);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0.7;
+        }
+
+        /* Gen Z Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .animate-on-scroll.animated {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background: var(--glass-dark);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                padding-top: 50px;
+                transition: left 0.3s ease;
+                gap: 20px;
+            }
+            
+            .nav-links.active {
+                left: 0;
+            }
+            
+            .hamburger {
+                display: block;
+            }
+            
+            .hero h1 {
+                font-size: 3rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .section-title h2 {
+                font-size: 2.5rem;
+            }
+            
+            .map-controls {
+                position: relative;
+                top: 0;
+                right: 0;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            
+            .destination-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .route-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header id="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="#" class="logo">
+                    <i class="fas fa-compass"></i>
+                    Visit<span>Lombok</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#destinations">Destinasi</a></li>
+                    <li><a href="#map-section">Peta</a></li>
+                    <li><a href="#reviews">Reviews</a></li>
+                    <li><a href="#contact">Kontak</a></li>
+                </ul>
+                <div class="hamburger">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1>LOMBOK VIBES</h1>
+                <p>No cap, this is the most lit destination in Indonesia! From epic beaches to crazy adventures - it's giving main character energy 🌴✨</p>
+                <div class="hero-buttons">
+                    <a href="#destinations" class="btn"><span>Explore Destinasi</span></a>
+                    <a href="#map-section" class="btn btn-secondary"><span>Lihat Peta</span></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Destinations Section -->
+    <section id="destinations" class="destinations">
+        <div class="container">
+            <div class="section-title">
+                <h2>🔥 Destinasi Populer</h2>
+                <p>Places that'll make your feed go crazy! These spots are absolutely bussin' 📸</p>
+            </div>
+            <div class="destination-grid">
+                <!-- Gili Trawangan -->
+                <div class="destination-card animate-on-scroll floating" data-location="-8.3500,116.0391" data-name="Gili Trawangan">
+                    <div class="destination-image">
+                        <img src="https://images.unsplash.com/photo-1577717903315-1691ae25e3bf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Gili Trawangan">
+                    </div>
+                    <div class="destination-info">
+                        <h3>Gili Trawangan</h3>
+                        <p>Island vibes on point! Crystal clear water, white sand beaches, and underwater life that's straight fire 🔥</p>
+                        
+                        <div class="destination-meta">
+                            <div class="rating">
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                                <span>4.5/5</span>
+                            </div>
+                            <div class="price">IDR 50K</div>
+                        </div>
+                        
+                        <div class="destination-details">
+                            <div class="detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>8AM-6PM</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-swimmer"></i>
+                                <span>Snorkeling</span>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-small view-on-map" style="margin-top: 15px; width: 100%;">
+                            <span>📍 View on Map</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Gunung Rinjani -->
+                <div class="destination-card animate-on-scroll floating" data-location="-8.4110,116.4572" data-name="Gunung Rinjani">
+                    <div class="destination-image">
+                        <img src="https://images.unsplash.com/photo-1628746406385-efe89ac16d15?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Gunung Rinjani">
+                    </div>
+                    <div class="destination-info">
+                        <h3>Gunung Rinjani</h3>
+                        <p>For the real ones! This hike ain't for the weak - but the views? Absolutely worth it 💪</p>
+                        
+                        <div class="destination-meta">
+                            <div class="rating">
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <span>5.0/5</span>
+                            </div>
+                            <div class="price">IDR 150K</div>
+                        </div>
+                        
+                        <div class="destination-details">
+                            <div class="detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>24/7</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-hiking"></i>
+                                <span>Hiking</span>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-small view-on-map" style="margin-top: 15px; width: 100%;">
+                            <span>📍 View on Map</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pantai Pink -->
+                <div class="destination-card animate-on-scroll floating" data-location="-8.3448,116.0454" data-name="Pantai Pink">
+                    <div class="destination-image">
+                        <img src="https://images.unsplash.com/photo-1597074861081-9c47e5d47b46?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Pantai Pink">
+                    </div>
+                    <div class="destination-info">
+                        <h3>Pantai Pink</h3>
+                        <p>Pink sand? That's not a filter! This beach is literally built different 🌸</p>
+                        
+                        <div class="destination-meta">
+                            <div class="rating">
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                                <span>4.0/5</span>
+                            </div>
+                            <div class="price">IDR 25K</div>
+                        </div>
+                        
+                        <div class="destination-details">
+                            <div class="detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>7AM-7PM</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-camera"></i>
+                                <span>Photoshoot</span>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-small view-on-map" style="margin-top: 15px; width: 100%;">
+                            <span>📍 View on Map</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section id="map-section" class="map-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>🗺️ Peta & Navigasi</h2>
+                <p>Don't get lost, fam! Use our lit navigation to find your way around Lombok 🧭</p>
+            </div>
+            
+            <div class="map-container">
+                <div id="map"></div>
+                
+                <div class="map-controls">
+                    <div class="route-form">
+                        <div class="form-group">
+                            <label for="start-location"><i class="fas fa-location-arrow"></i> Your Location</label>
+                            <input type="text" id="start-location" placeholder="Where you at?" readonly>
+                            <div class="location-buttons">
+                                <button class="location-btn" id="detect-location">
+                                    <i class="fas fa-crosshairs"></i> Detect Me
+                                </button>
+                                <button class="location-btn" id="manual-location">
+                                    <i class="fas fa-edit"></i> Manual
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="destination"><i class="fas fa-flag"></i> Destination</label>
+                            <select id="destination">
+                                <option value="">Pick your vibe</option>
+                                <option value="-8.3500,116.0391">Gili Trawangan</option>
+                                <option value="-8.4110,116.4572">Gunung Rinjani</option>
+                                <option value="-8.3448,116.0454">Pantai Pink</option>
+                                <option value="-8.8956,116.3129">Pantai Kuta Lombok</option>
+                                <option value="-8.6762,116.2714">Air Terjun Tiu Kelep</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="transport-mode"><i class="fas fa-car"></i> Ride Type</label>
+                            <select id="transport-mode">
+                                <option value="car">Car 🚗</option>
+                                <option value="motorcycle">Motorcycle 🏍️</option>
+                                <option value="bicycle">Bicycle 🚲</option>
+                                <option value="foot">Walking 🚶</option>
+                            </select>
+                        </div>
+                        
+                        <div class="route-actions">
+                            <button class="route-btn" id="calculate-route">
+                                <i class="fas fa-route"></i> Get Route
+                            </button>
+                            <button class="route-btn" id="clear-route" style="background: rgba(255,255,255,0.1);">
+                                <i class="fas fa-times"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="route-info" id="route-info">
+                <div class="route-details">
+                    <div class="route-detail">
+                        <h4>Jarak Tempuh</h4>
+                        <p id="distance">-</p>
+                    </div>
+                    <div class="route-detail">
+                        <h4>Estimasi Waktu</h4>
+                        <p id="duration">-</p>
+                    </div>
+                    <div class="route-detail">
+                        <h4>Mode Transportasi</h4>
+                        <p id="transport-mode-display">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section id="reviews" class="reviews-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>💬 Reviews & Ratings</h2>
+                <p>See what the squad is saying about these lit spots! Drop your own review too 👇</p>
+            </div>
+            
+            <div class="reviews-container">
+                <!-- Review Form -->
+                <div class="review-form">
+                    <h3>Drop Your Review! 🎤</h3>
+                    <form id="reviewForm">
+                        <div class="form-group">
+                            <label for="reviewer-name">Your Name</label>
+                            <input type="text" id="reviewer-name" placeholder="Enter your name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="destination-select">Pick a Spot</label>
+                            <select id="destination-select" required>
+                                <option value="">Select destination</option>
+                                <option value="Gili Trawangan">Gili Trawangan</option>
+                                <option value="Gunung Rinjani">Gunung Rinjani</option>
+                                <option value="Pantai Pink">Pantai Pink</option>
+                                <option value="Pantai Kuta Lombok">Pantai Kuta Lombok</option>
+                                <option value="Air Terjun Tiu Kelep">Air Terjun Tiu Kelep</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Rate Your Experience</label>
+                            <div class="star-rating" id="star-rating">
+                                <span class="star" data-rating="1">★</span>
+                                <span class="star" data-rating="2">★</span>
+                                <span class="star" data-rating="3">★</span>
+                                <span class="star" data-rating="4">★</span>
+                                <span class="star" data-rating="5">★</span>
+                            </div>
+                            <input type="hidden" id="rating-value" value="0" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="review-text">Your Review</label>
+                            <textarea id="review-text" placeholder="Spill the tea! How was your experience?" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn" style="width: 100%;">
+                            <span>Post Review 🚀</span>
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Reviews List -->
+                <div class="reviews-list" id="reviews-list">
+                    <!-- Reviews will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Visit Lombok</h3>
+                    <p>Your go-to guide for the most lit experiences in Lombok. We're all about good vibes and great adventures! ✨</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-tiktok"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul style="list-style: none;">
+                        <li><a href="#destinations" style="color: white; text-decoration: none; opacity: 0.8; transition: opacity 0.3s;">🔥 Destinasi</a></li>
+                        <li><a href="#map-section" style="color: white; text-decoration: none; opacity: 0.8; transition: opacity 0.3s;">🗺️ Peta</a></li>
+                        <li><a href="#reviews" style="color: white; text-decoration: none; opacity: 0.8; transition: opacity 0.3s;">💬 Reviews</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <p><i class="fas fa-phone"></i> +62 812-3456-7890</p>
+                    <p><i class="fas fa-envelope"></i> hello@visitlombok.id</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Lombok, Indonesia</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 💖visitlombok.id💖 Lombok endah, tanah beremas, aiq bening, gunung malekat.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+    <script>
+        // Mobile Navigation Toggle
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            hamburger.innerHTML = navLinks.classList.contains('active') ? 
+                '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        });
+
+        // Header Scroll Effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Scroll Animation
+        const animateElements = document.querySelectorAll('.animate-on-scroll');
+
+        function checkScroll() {
+            animateElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (elementTop < windowHeight - 100) {
+                    element.classList.add('animated');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', checkScroll);
+        window.addEventListener('load', checkScroll);
+
+        // Map and Routing Implementation
+        let map, routingControl, userLocation, userMarker;
+        let routeLine;
+
+        function initMap() {
+            // Initialize map centered on Lombok
+            map = L.map('map').setView([-8.6500, 116.3167], 10);
+            
+            // Add dark theme map tiles
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            // Define popular destinations
+            const destinations = {
+                'Gili Trawangan': [-8.3500, 116.0391],
+                'Gunung Rinjani': [-8.4110, 116.4572],
+                'Pantai Pink': [-8.3448, 116.0454],
+                'Pantai Kuta Lombok': [-8.8956, 116.3129],
+                'Air Terjun Tiu Kelep': [-8.6762, 116.2714]
+            };
+            
+            // Add custom markers for each destination
+            Object.keys(destinations).forEach(dest => {
+                const coords = destinations[dest];
+                const customIcon = L.divIcon({
+                    html: `<div style="background: var(--gradient); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">📍</div>`,
+                    className: 'custom-marker',
+                    iconSize: [30, 30]
+                });
+                
+                L.marker(coords, {icon: customIcon})
+                    .addTo(map)
+                    .bindPopup(`<b>${dest}</b><br><button class="btn set-destination" style="margin-top: 10px; padding: 8px 16px; font-size: 0.8rem;">Take me there! 🚀</button>`)
+                    .openPopup();
+            });
+            
+            // Event listeners
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            // Detect user location
+            document.getElementById('detect-location').addEventListener('click', detectUserLocation);
+            
+            // Manual location input
+            document.getElementById('manual-location').addEventListener('click', () => {
+                const location = prompt('Drop your coordinates or address (example: -8.5890,116.0980):');
+                if (location) {
+                    setManualLocation(location);
+                }
+            });
+            
+            // Calculate route
+            document.getElementById('calculate-route').addEventListener('click', calculateRoute);
+            
+            // Clear route
+            document.getElementById('clear-route').addEventListener('click', clearRoute);
+            
+            // View on map buttons
+            document.querySelectorAll('.view-on-map').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const card = this.closest('.destination-card');
+                    const location = card.getAttribute('data-location').split(',');
+                    const name = card.getAttribute('data-name');
+                    
+                    // Set destination in dropdown
+                    document.getElementById('destination').value = card.getAttribute('data-location');
+                    
+                    // Center map on destination
+                    map.setView([parseFloat(location[0]), parseFloat(location[1])], 13);
+                });
+            });
+            
+            // Set destination from marker popup
+            map.on('popupopen', function(e) {
+                const popup = e.popup;
+                const setDestinationBtn = popup._contentNode.querySelector('.set-destination');
+                
+                if (setDestinationBtn) {
+                    setDestinationBtn.addEventListener('click', function() {
+                        const marker = e.popup._source;
+                        const coords = marker.getLatLng();
+                        document.getElementById('destination').value = `${coords.lat},${coords.lng}`;
+                    });
+                }
+            });
+        }
+
+        function detectUserLocation() {
+            const locationInput = document.getElementById('start-location');
+            locationInput.value = 'Detecting your location... 🕵️';
+            
+            if (!navigator.geolocation) {
+                locationInput.value = 'Geolocation not supported 😔';
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    userLocation = [
+                        position.coords.latitude,
+                        position.coords.longitude
+                    ];
+                    
+                    // Remove existing user marker
+                    if (userMarker) {
+                        map.removeLayer(userMarker);
+                    }
+                    
+                    // Add user location marker
+                    userMarker = L.marker(userLocation)
+                        .addTo(map)
+                        .bindPopup('<b>You are here! 👋</b>')
+                        .openPopup();
+                    
+                    // Update location input
+                    locationInput.value = `Lat: ${userLocation[0].toFixed(4)}, Lng: ${userLocation[1].toFixed(4)}`;
+                    
+                    // Center map on user location
+                    map.setView(userLocation, 13);
+                },
+                function(error) {
+                    let errorMessage = 'Failed to detect location 😅';
+                    
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = 'Location access denied 🚫';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = 'Location info not available 📡';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = 'Location request timeout ⏰';
+                            break;
+                    }
+                    
+                    locationInput.value = errorMessage;
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 60000
+                }
+            );
+        }
+
+        function setManualLocation(location) {
+            let coords;
+            
+            // Try to parse as coordinates
+            if (location.includes(',')) {
+                const parts = location.split(',');
+                coords = [parseFloat(parts[0].trim()), parseFloat(parts[1].trim())];
+            } else {
+                // For demo purposes, use a fixed location in Lombok
+                coords = [-8.5890, 116.0980]; // Mataram coordinates
+            }
+            
+            userLocation = coords;
+            
+            // Remove existing user marker
+            if (userMarker) {
+                map.removeLayer(userMarker);
+            }
+            
+            // Add user location marker
+            userMarker = L.marker(coords)
+                .addTo(map)
+                .bindPopup('<b>Your spot! 🎯</b>')
+                .openPopup();
+            
+            // Update location input
+            document.getElementById('start-location').value = `Lat: ${coords[0].toFixed(4)}, Lng: ${coords[1].toFixed(4)}`;
+            
+            // Center map on location
+            map.setView(coords, 13);
+        }
+
+        function calculateRoute() {
+            const destinationSelect = document.getElementById('destination');
+            const destinationCoords = destinationSelect.value.split(',');
+            
+            if (!userLocation) {
+                alert('Please set your location first! 📍');
+                return;
+            }
+            
+            if (destinationCoords.length !== 2) {
+                alert('Please select a destination! 🎯');
+                return;
+            }
+            
+            const destination = [
+                parseFloat(destinationCoords[0]),
+                parseFloat(destinationCoords[1])
+            ];
+            
+            // Clear previous route
+            if (routeLine) {
+                map.removeLayer(routeLine);
+            }
+            
+            // Calculate distance (simplified calculation)
+            const distance = calculateDistance(userLocation, destination);
+            const transportMode = document.getElementById('transport-mode').value;
+            
+            // Calculate estimated time based on transport mode
+            let speed;
+            switch(transportMode) {
+                case 'car': speed = 60; break;
+                case 'motorcycle': speed = 40; break;
+                case 'bicycle': speed = 15; break;
+                case 'foot': speed = 5; break;
+                default: speed = 30;
+            }
+            
+            const duration = (distance / speed) * 60; // in minutes
+            
+            // Draw route line
+            routeLine = L.polyline([userLocation, destination], {
+                color: '#ff2d95',
+                weight: 5,
+                opacity: 0.7,
+                dashArray: '10, 10'
+            }).addTo(map);
+            
+            // Fit map to show both points
+            map.fitBounds([userLocation, destination]);
+            
+            // Update route info
+            updateRouteInfo(distance, duration, transportMode);
+        }
+
+        function calculateDistance(coord1, coord2) {
+            // Haversine formula to calculate distance between two coordinates
+            const R = 6371; // Earth's radius in km
+            const dLat = (coord2[0] - coord1[0]) * Math.PI / 180;
+            const dLon = (coord2[1] - coord1[1]) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(coord1[0] * Math.PI / 180) * Math.cos(coord2[0] * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function updateRouteInfo(distance, duration, transportMode) {
+            const routeInfo = document.getElementById('route-info');
+            const distanceEl = document.getElementById('distance');
+            const durationEl = document.getElementById('duration');
+            const transportModeDisplay = document.getElementById('transport-mode-display');
+            
+            // Show route info
+            routeInfo.classList.add('active');
+            
+            // Update info
+            distanceEl.textContent = distance.toFixed(1) + ' km';
+            durationEl.textContent = Math.round(duration) + ' menit';
+            
+            // Update transport mode
+            const modeNames = {
+                'car': 'Mobil 🚗',
+                'motorcycle': 'Motor 🏍️',
+                'bicycle': 'Sepeda 🚲',
+                'foot': 'Jalan Kaki 🚶'
+            };
+            transportModeDisplay.textContent = modeNames[transportMode];
+        }
+
+        function clearRoute() {
+            // Clear route line
+            if (routeLine) {
+                map.removeLayer(routeLine);
+                routeLine = null;
+            }
+            
+            // Hide route info
+            document.getElementById('route-info').classList.remove('active');
+            
+            // Clear destination selection
+            document.getElementById('destination').value = '';
+        }
+
+        // Review System
+        let reviews = JSON.parse(localStorage.getItem('lombokReviews')) || [];
+
+        function initReviewSystem() {
+            // Star rating functionality
+            const stars = document.querySelectorAll('.star-rating .star');
+            const ratingValue = document.getElementById('rating-value');
+            
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = this.getAttribute('data-rating');
+                    ratingValue.value = rating;
+                    
+                    // Update star display
+                    stars.forEach(s => {
+                        if (s.getAttribute('data-rating') <= rating) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+            });
+            
+            // Review form submission
+            document.getElementById('reviewForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('reviewer-name').value;
+                const destination = document.getElementById('destination-select').value;
+                const rating = document.getElementById('rating-value').value;
+                const text = document.getElementById('review-text').value;
+                
+                if (rating === '0') {
+                    alert('Please give a rating! ⭐');
+                    return;
+                }
+                
+                const review = {
+                    id: Date.now(),
+                    name: name,
+                    destination: destination,
+                    rating: parseInt(rating),
+                    text: text,
+                    date: new Date().toLocaleDateString('id-ID')
+                };
+                
+                reviews.unshift(review);
+                saveReviews();
+                displayReviews();
+                this.reset();
+                
+                // Reset stars
+                stars.forEach(star => star.classList.remove('active'));
+                ratingValue.value = '0';
+                
+                alert('Review posted! Thanks for the tea ☕');
+            });
+            
+            // Display existing reviews
+            displayReviews();
+        }
+
+        function saveReviews() {
+            localStorage.setItem('lombokReviews', JSON.stringify(reviews));
+        }
+
+        function displayReviews() {
+            const reviewsList = document.getElementById('reviews-list');
+            reviewsList.innerHTML = '';
+            
+            if (reviews.length === 0) {
+                reviewsList.innerHTML = '<p style="text-align: center; opacity: 0.7;">No reviews yet. Be the first to spill the tea! ☕</p>';
+                return;
+            }
+            
+            reviews.forEach(review => {
+                const reviewCard = document.createElement('div');
+                reviewCard.className = 'review-card';
+                
+                const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+                
+                reviewCard.innerHTML = `
+                    <div class="review-header">
+                        <div class="reviewer-name">${review.name}</div>
+                        <div class="review-date">${review.date}</div>
+                    </div>
+                    <div class="review-rating" style="color: #ffd700;">${stars}</div>
+                    <div class="review-destination" style="opacity: 0.8; margin-bottom: 10px; font-size: 0.9rem;">
+                        <i class="fas fa-map-marker-alt"></i> ${review.destination}
+                    </div>
+                    <div class="review-text">${review.text}</div>
+                `;
+                
+                reviewsList.appendChild(reviewCard);
+            });
+        }
+
+        // Initialize everything when page loads
+        window.addEventListener('load', function() {
+            initMap();
+            initReviewSystem();
+            
+            // Add some sample reviews if none exist
+            if (reviews.length === 0) {
+                reviews = [
+                    {
+                        id: 1,
+                        name: "Sarah 🏄‍♀️",
+                        destination: "Gili Trawangan",
+                        rating: 5,
+                        text: "No cap, this place is absolutely fire! The water is so clear and the vibes are immaculate. Definitely coming back!",
+                        date: "15/03/2024"
+                    },
+                    {
+                        id: 2,
+                        name: "Alex 💪",
+                        destination: "Gunung Rinjani",
+                        rating: 5,
+                        text: "This hike was lowkey brutal but the sunrise view from the top? Absolutely worth it. Main character energy fr!",
+                        date: "10/03/2024"
+                    },
+                    {
+                        id: 3,
+                        name: "Maya 🌸",
+                        destination: "Pantai Pink",
+                        rating: 4,
+                        text: "The pink sand is actually real! Photos don't do it justice. Perfect spot for the gram 📸",
+                        date: "05/03/2024"
+                    }
+                ];
+                saveReviews();
+                displayReviews();
+            }
+        });
+    </script>
+</body>
+</html>
