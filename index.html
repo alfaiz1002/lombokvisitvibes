@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visit Lombok - No Cap, Best Place Fr! 🌴</title>
+    <title>Visit Lombok - Nature's Paradise in Indonesia! 🌴</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <style>
-        /* Gen Z Style Reset */
+        /* Nature Style Reset */
         * {
             margin: 0;
             padding: 0;
@@ -17,16 +17,46 @@
         }
 
         :root {
-            --neon-pink: #ff2d95;
-            --violet: #8a2be2;
-            --electric-blue: #00f5ff;
-            --lime: #00ff88;
-            --dark: #0f0f0f;
-            --light: #f8fafc;
-            --gradient: linear-gradient(135deg, #ff2d95, #8a2be2, #00f5ff);
-            --gradient2: linear-gradient(135deg, #00ff88, #00f5ff, #ff2d95);
+            /* Nature Color Palette - Biru & Hijau Alam */
+            --ocean-blue: #2D9CDB;
+            --forest-green: #27AE60;
+            --emerald: #2ECC71;
+            --turquoise: #1ABC9C;
+            --sky-blue: #3498DB;
+            --leaf-green: #57CC99;
+            --deep-blue: #2980B9;
+            --nature-teal: #16A085;
+            
+            /* Neutral Colors */
+            --dark: #1A3C34;
+            --light: #F7F9FC;
+            
+            /* Gradients Alam */
+            --gradient: linear-gradient(135deg, var(--ocean-blue), var(--forest-green), var(--turquoise));
+            --gradient2: linear-gradient(135deg, var(--emerald), var(--sky-blue), var(--leaf-green));
+            
+            /* Glass Effects */
             --glass: rgba(255, 255, 255, 0.1);
-            --glass-dark: rgba(15, 15, 15, 0.8);
+            --glass-dark: rgba(26, 60, 52, 0.8);
+            
+            /* Theme Variables */
+            --bg-primary: #1A3C34;
+            --bg-secondary: #2D4A43;
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.8);
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #F7F9FC;
+            --bg-secondary: #E8F4F8;
+            --text-primary: #2C3E50;
+            --text-secondary: rgba(44, 62, 80, 0.8);
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --border-color: rgba(45, 156, 219, 0.2);
+            --glass: rgba(255, 255, 255, 0.8);
+            --glass-dark: rgba(255, 255, 255, 0.9);
         }
 
         html {
@@ -34,13 +64,31 @@
         }
 
         body {
-            background: var(--dark);
-            color: white;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             line-height: 1.6;
             overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(255, 45, 149, 0.1) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(0, 245, 255, 0.1) 0%, transparent 20%);
+                radial-gradient(circle at 10% 20%, rgba(45, 156, 219, 0.15) 0%, transparent 25%),
+                radial-gradient(circle at 90% 80%, rgba(39, 174, 96, 0.15) 0%, transparent 25%);
+            z-index: -1;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="light"] body::before {
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(45, 156, 219, 0.08) 0%, transparent 25%),
+                radial-gradient(circle at 90% 80%, rgba(39, 174, 96, 0.08) 0%, transparent 25%);
         }
 
         .container {
@@ -74,10 +122,38 @@
             font-size: 1.2rem;
             max-width: 700px;
             margin: 0 auto;
-            opacity: 0.9;
+            color: var(--text-secondary);
         }
 
-        /* Gen Z Buttons */
+        /* Nature Theme Toggle Button */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            border-color: var(--ocean-blue);
+        }
+
+        .theme-toggle i {
+            font-size: 1.2rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: all 0.3s ease;
+        }
+
+        /* Nature Buttons */
         .btn {
             display: inline-block;
             padding: 14px 32px;
@@ -118,17 +194,17 @@
 
         .btn:hover {
             transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 10px 30px rgba(255, 45, 149, 0.4);
+            box-shadow: 0 10px 30px rgba(45, 156, 219, 0.4);
         }
 
         .btn-secondary {
             background: transparent;
-            border: 2px solid var(--neon-pink);
-            color: var(--neon-pink);
+            border: 2px solid var(--ocean-blue);
+            color: var(--ocean-blue);
         }
 
         .btn-secondary:hover {
-            background: var(--neon-pink);
+            background: var(--ocean-blue);
             color: white;
         }
 
@@ -137,7 +213,7 @@
             font-size: 0.9rem;
         }
 
-        /* Header & Navigation - Gen Z Style */
+        /* Header & Navigation - Nature Style */
         header {
             position: fixed;
             top: 0;
@@ -146,12 +222,12 @@
             z-index: 1000;
             background: var(--glass-dark);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid var(--border-color);
             transition: all 0.3s ease;
         }
 
         header.scrolled {
-            background: rgba(15, 15, 15, 0.95);
+            background: var(--glass-dark);
         }
 
         .navbar {
@@ -164,7 +240,7 @@
         .logo {
             font-size: 2rem;
             font-weight: 900;
-            color: white;
+            color: var(--text-primary);
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -192,7 +268,7 @@
 
         .nav-links a {
             text-decoration: none;
-            color: white;
+            color: var(--text-primary);
             font-weight: 600;
             transition: all 0.3s ease;
             position: relative;
@@ -215,26 +291,31 @@
         }
 
         .nav-links a:hover {
-            color: var(--neon-pink);
+            color: var(--ocean-blue);
         }
 
         .hamburger {
             display: none;
             cursor: pointer;
             font-size: 1.5rem;
-            color: white;
+            color: var(--text-primary);
         }
 
-        /* Hero Section - Gen Z Vibes */
+        /* Hero Section - Nature Vibes */
         .hero {
             height: 100vh;
-            background: linear-gradient(rgba(15, 15, 15, 0.8), rgba(15, 15, 15, 0.9)), 
+            background: linear-gradient(rgba(26, 60, 52, 0.8), rgba(26, 60, 52, 0.9)), 
                         url('https://images.unsplash.com/photo-1559661175-2db6a6d82f20?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
             display: flex;
             align-items: center;
             text-align: center;
             position: relative;
             overflow: hidden;
+        }
+
+        [data-theme="light"] .hero {
+            background: linear-gradient(rgba(247, 249, 252, 0.8), rgba(247, 249, 252, 0.9)), 
+                        url('https://images.unsplash.com/photo-1559661175-2db6a6d82f20?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
         }
 
         .hero-content {
@@ -257,7 +338,7 @@
         .hero p {
             font-size: 1.4rem;
             margin-bottom: 40px;
-            opacity: 0.9;
+            color: var(--text-secondary);
             line-height: 1.6;
         }
 
@@ -278,9 +359,9 @@
             50% { transform: translateY(-20px); }
         }
 
-        /* Destinations Section - Gen Z Grid */
+        /* Destinations Section - Nature Grid */
         .destinations {
-            background: var(--dark);
+            background: var(--bg-primary);
             position: relative;
         }
 
@@ -291,11 +372,11 @@
         }
 
         .destination-card {
-            background: var(--glass);
+            background: var(--card-bg);
             backdrop-filter: blur(20px);
             border-radius: 20px;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
             transition: all 0.4s ease;
             position: relative;
             cursor: pointer;
@@ -320,8 +401,8 @@
 
         .destination-card:hover {
             transform: translateY(-10px) scale(1.02);
-            border-color: var(--neon-pink);
-            box-shadow: 0 20px 40px rgba(255, 45, 149, 0.2);
+            border-color: var(--ocean-blue);
+            box-shadow: 0 20px 40px rgba(45, 156, 219, 0.2);
         }
 
         .destination-image {
@@ -351,11 +432,12 @@
             font-size: 1.6rem;
             margin-bottom: 10px;
             font-weight: 700;
+            color: var(--text-primary);
         }
 
         .destination-info p {
             margin-bottom: 15px;
-            opacity: 0.9;
+            color: var(--text-secondary);
             font-size: 0.95rem;
         }
 
@@ -391,7 +473,7 @@
             gap: 10px;
             margin-top: 15px;
             padding-top: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid var(--border-color);
         }
 
         .detail-item {
@@ -399,16 +481,286 @@
             align-items: center;
             gap: 8px;
             font-size: 0.85rem;
-            opacity: 0.8;
+            color: var(--text-secondary);
         }
 
         .detail-item i {
-            color: var(--neon-pink);
+            color: var(--ocean-blue);
+        }
+
+        /* Testimonials Section */
+        .testimonials-section {
+            background: var(--bg-primary);
+            padding: 80px 0;
+        }
+
+        .testimonials-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .testimonial-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .testimonial-card::before {
+            content: '"';
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 4rem;
+            color: var(--border-color);
+            font-family: serif;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--ocean-blue);
+            box-shadow: 0 15px 30px rgba(45, 156, 219, 0.2);
+        }
+
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .testimonial-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+            border: 2px solid var(--ocean-blue);
+        }
+
+        .testimonial-user {
+            flex: 1;
+        }
+
+        .testimonial-user h4 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .testimonial-user p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .testimonial-rating {
+            color: #ffd700;
+            font-size: 0.9rem;
+            margin: 5px 0;
+        }
+
+        .testimonial-text {
+            line-height: 1.6;
+            font-style: italic;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .testimonial-destination {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .testimonial-destination i {
+            color: var(--ocean-blue);
+        }
+
+        /* Category Search Section */
+        .category-search-section {
+            background: var(--bg-primary);
+            padding: 80px 0;
+        }
+
+        .search-container {
+            max-width: 800px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 18px 25px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--ocean-blue);
+            box-shadow: 0 0 20px rgba(45, 156, 219, 0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .category-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--ocean-blue);
+            box-shadow: 0 10px 25px rgba(45, 156, 219, 0.2);
+        }
+
+        .category-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .category-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+        }
+
+        .category-card p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Results Section */
+        .search-results {
+            margin-top: 40px;
+            display: none;
+        }
+
+        .search-results.active {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--ocean-blue);
+            box-shadow: 0 10px 25px rgba(45, 156, 219, 0.2);
+        }
+
+        .result-image {
+            height: 180px;
+            overflow: hidden;
+        }
+
+        .result-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .result-card:hover .result-image img {
+            transform: scale(1.1);
+        }
+
+        .result-info {
+            padding: 20px;
+        }
+
+        .result-info h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.3rem;
+            color: var(--text-primary);
+        }
+
+        .result-info p {
+            margin: 0 0 15px 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .result-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-rating {
+            color: #ffd700;
+        }
+
+        .result-price {
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         /* Reviews Section */
         .reviews-section {
-            background: var(--dark);
+            background: var(--bg-primary);
             padding: 80px 0;
         }
 
@@ -418,12 +770,12 @@
         }
 
         .review-form {
-            background: var(--glass);
+            background: var(--card-bg);
             backdrop-filter: blur(20px);
             border-radius: 20px;
             padding: 30px;
             margin-bottom: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
         }
 
         .review-form h3 {
@@ -442,6 +794,7 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
+            color: var(--text-primary);
         }
 
         .form-group input,
@@ -449,20 +802,25 @@
         .form-group select {
             width: 100%;
             padding: 12px 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 10px;
-            color: white;
+            color: var(--text-primary);
             font-size: 1rem;
             transition: all 0.3s ease;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--text-secondary);
         }
 
         .form-group input:focus,
         .form-group textarea:focus,
         .form-group select:focus {
             outline: none;
-            border-color: var(--neon-pink);
-            box-shadow: 0 0 0 2px rgba(255, 45, 149, 0.3);
+            border-color: var(--ocean-blue);
+            box-shadow: 0 0 0 2px rgba(45, 156, 219, 0.3);
         }
 
         .form-group textarea {
@@ -478,7 +836,7 @@
 
         .star-rating .star {
             font-size: 2rem;
-            color: #444;
+            color: var(--border-color);
             cursor: pointer;
             transition: color 0.2s ease;
         }
@@ -498,11 +856,11 @@
         }
 
         .review-card {
-            background: var(--glass);
+            background: var(--card-bg);
             backdrop-filter: blur(20px);
             border-radius: 15px;
             padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
         }
 
         .review-header {
@@ -515,10 +873,11 @@
         .reviewer-name {
             font-weight: 700;
             font-size: 1.1rem;
+            color: var(--text-primary);
         }
 
         .review-date {
-            opacity: 0.7;
+            color: var(--text-secondary);
             font-size: 0.9rem;
         }
 
@@ -529,13 +888,13 @@
 
         .review-text {
             line-height: 1.6;
-            opacity: 0.9;
+            color: var(--text-primary);
         }
 
-        /* Map Section - Gen Z Style */
+        /* Map Section - Nature Style */
         .map-section {
             padding: 80px 0;
-            background: var(--dark);
+            background: var(--bg-primary);
         }
 
         .map-container {
@@ -545,7 +904,7 @@
             height: 600px;
             margin-bottom: 30px;
             position: relative;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--border-color);
         }
 
         #map {
@@ -563,7 +922,7 @@
             backdrop-filter: blur(20px);
             border-radius: 15px;
             padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
             width: 320px;
         }
 
@@ -577,7 +936,7 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: white;
+            color: var(--text-primary);
             font-size: 0.9rem;
         }
 
@@ -585,10 +944,10 @@
         .form-group select {
             width: 100%;
             padding: 12px 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 10px;
-            color: white;
+            color: var(--text-primary);
             font-size: 0.9rem;
             transition: all 0.3s ease;
         }
@@ -596,24 +955,28 @@
         /* Custom Select Styling */
         .form-group select {
             appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231A3C34'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
             background-repeat: no-repeat;
             background-position: right 12px center;
             background-size: 16px;
             padding-right: 40px;
         }
 
+        [data-theme="dark"] .form-group select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+        }
+
         .form-group select option {
-            background: var(--dark);
-            color: white;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             padding: 10px;
         }
 
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: var(--neon-pink);
-            box-shadow: 0 0 0 2px rgba(255, 45, 149, 0.3);
+            border-color: var(--ocean-blue);
+            box-shadow: 0 0 0 2px rgba(45, 156, 219, 0.3);
         }
 
         .location-buttons {
@@ -624,9 +987,9 @@
 
         .location-btn {
             padding: 8px 15px;
-            background: var(--glass);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             cursor: pointer;
             font-size: 0.8rem;
@@ -635,7 +998,7 @@
         }
 
         .location-btn:hover {
-            background: var(--neon-pink);
+            background: var(--ocean-blue);
             transform: translateY(-2px);
         }
 
@@ -660,16 +1023,16 @@
 
         .route-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 45, 149, 0.4);
+            box-shadow: 0 5px 15px rgba(45, 156, 219, 0.4);
         }
 
         .route-info {
-            background: var(--glass);
+            background: var(--card-bg);
             backdrop-filter: blur(20px);
             border-radius: 15px;
             padding: 20px;
             margin-top: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
             display: none;
         }
 
@@ -699,7 +1062,7 @@
         .route-detail {
             text-align: center;
             padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--card-bg);
             border-radius: 10px;
             transition: transform 0.3s ease;
         }
@@ -711,38 +1074,39 @@
         .route-detail h4 {
             font-size: 0.8rem;
             margin-bottom: 5px;
-            opacity: 0.8;
+            color: var(--text-secondary);
         }
 
         .route-detail p {
             font-size: 1.2rem;
             font-weight: 700;
+            color: var(--text-primary);
         }
 
         /* Leaflet Routing Machine Custom Styling */
         .leaflet-routing-container {
             background: var(--glass-dark) !important;
             backdrop-filter: blur(20px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid var(--border-color) !important;
             border-radius: 15px !important;
-            color: white !important;
+            color: var(--text-primary) !important;
         }
 
         .leaflet-routing-alt {
             background: transparent !important;
-            color: white !important;
+            color: var(--text-primary) !important;
         }
 
         .leaflet-routing-alt h2 {
-            color: white !important;
+            color: var(--text-primary) !important;
         }
 
         .leaflet-routing-alt table {
-            color: white !important;
+            color: var(--text-primary) !important;
         }
 
         .leaflet-routing-alt tr:hover {
-            background: rgba(255, 255, 255, 0.1) !important;
+            background: var(--card-bg) !important;
         }
 
         .leaflet-routing-geocoders {
@@ -750,10 +1114,10 @@
         }
 
         .leaflet-routing-geocoders input {
-            background: rgba(255, 255, 255, 0.1) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            background: var(--card-bg) !important;
+            border: 1px solid var(--border-color) !important;
             border-radius: 8px !important;
-            color: white !important;
+            color: var(--text-primary) !important;
             padding: 10px !important;
             margin-bottom: 10px !important;
         }
@@ -770,14 +1134,14 @@
 
         .leaflet-routing-geocoders button:hover {
             transform: translateY(-2px) !important;
-            box-shadow: 0 5px 15px rgba(255, 45, 149, 0.4) !important;
+            box-shadow: 0 5px 15px rgba(45, 156, 219, 0.4) !important;
         }
 
-        /* Footer - Gen Z Style */
+        /* Footer - Nature Style */
         footer {
             background: var(--glass-dark);
             backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid var(--border-color);
             padding: 60px 0 20px;
         }
 
@@ -799,7 +1163,7 @@
 
         .footer-column p {
             margin-bottom: 20px;
-            opacity: 0.8;
+            color: var(--text-secondary);
             line-height: 1.6;
         }
 
@@ -815,12 +1179,12 @@
             justify-content: center;
             width: 45px;
             height: 45px;
-            background: var(--glass);
+            background: var(--card-bg);
             border-radius: 50%;
-            color: white;
+            color: var(--text-primary);
             text-decoration: none;
             transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
         }
 
         .social-links a:hover {
@@ -831,11 +1195,11 @@
         .footer-bottom {
             text-align: center;
             padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            opacity: 0.7;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
         }
 
-        /* Gen Z Animations */
+        /* Nature Animations */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -922,6 +1286,20 @@
             .route-details {
                 grid-template-columns: 1fr;
             }
+            
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .categories-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .theme-toggle {
+                top: 15px;
+                right: 15px;
+                padding: 10px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -938,10 +1316,19 @@
                 width: 100%;
                 max-width: 280px;
             }
+            
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
-<body>
+<body data-theme="dark">
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" id="themeToggle">
+        <i class="fas fa-sun"></i>
+    </div>
+
     <!-- Header & Navigation -->
     <header id="header">
         <div class="container">
@@ -953,9 +1340,10 @@
                 <ul class="nav-links">
                     <li><a href="#home">Home</a></li>
                     <li><a href="#destinations">Destinasi</a></li>
+                    <li><a href="#categories">Kategori</a></li>
+                    <li><a href="#testimonials">Testimoni</a></li>
                     <li><a href="#map-section">Peta</a></li>
                     <li><a href="#reviews">Reviews</a></li>
-                    <li><a href="#contact">Kontak</a></li>
                 </ul>
                 <div class="hamburger">
                     <i class="fas fa-bars"></i>
@@ -968,11 +1356,11 @@
     <section class="hero" id="home">
         <div class="container">
             <div class="hero-content">
-                <h1>LOMBOK VIBES</h1>
-                <p>No cap, this is the most lit destination in Indonesia! From epic beaches to crazy adventures - it's giving main character energy 🌴✨</p>
+                <h1>LOMBOK NATURE</h1>
+                <p>Discover the untouched beauty of Lombok! From pristine beaches to majestic mountains - experience nature at its finest 🌿🌊</p>
                 <div class="hero-buttons">
-                    <a href="#destinations" class="btn"><span>Explore Destinasi</span></a>
-                    <a href="#map-section" class="btn btn-secondary"><span>Lihat Peta</span></a>
+                    <a href="#destinations" class="btn"><span>Explore Nature</span></a>
+                    <a href="#categories" class="btn btn-secondary"><span>Find Activities</span></a>
                 </div>
             </div>
         </div>
@@ -982,8 +1370,8 @@
     <section id="destinations" class="destinations">
         <div class="container">
             <div class="section-title">
-                <h2>🔥 Destinasi Populer</h2>
-                <p>Places that'll make your feed go crazy! These spots are absolutely bussin' 📸</p>
+                <h2>🌴 Destinasi Alam</h2>
+                <p>Experience the breathtaking natural wonders of Lombok that will leave you in awe</p>
             </div>
             <div class="destination-grid">
                 <!-- Gili Trawangan -->
@@ -993,7 +1381,7 @@
                     </div>
                     <div class="destination-info">
                         <h3>Gili Trawangan</h3>
-                        <p>Island vibes on point! Crystal clear water, white sand beaches, and underwater life that's straight fire 🔥</p>
+                        <p>Crystal clear turquoise waters and vibrant marine life perfect for snorkeling and diving</p>
                         
                         <div class="destination-meta">
                             <div class="rating">
@@ -1033,7 +1421,7 @@
                     </div>
                     <div class="destination-info">
                         <h3>Gunung Rinjani</h3>
-                        <p>For the real ones! This hike ain't for the weak - but the views? Absolutely worth it 💪</p>
+                        <p>Majestic volcano with stunning crater lake views and challenging hiking trails</p>
                         
                         <div class="destination-meta">
                             <div class="rating">
@@ -1073,7 +1461,7 @@
                     </div>
                     <div class="destination-info">
                         <h3>Pantai Pink</h3>
-                        <p>Pink sand? That's not a filter! This beach is literally built different 🌸</p>
+                        <p>Unique pink sand beach created by coral fragments mixed with white sand</p>
                         
                         <div class="destination-meta">
                             <div class="rating">
@@ -1096,7 +1484,7 @@
                             </div>
                             <div class="detail-item">
                                 <i class="fas fa-camera"></i>
-                                <span>Photoshoot</span>
+                                <span>Photography</span>
                             </div>
                         </div>
                         
@@ -1109,12 +1497,102 @@
         </div>
     </section>
 
+    <!-- Category Search Section -->
+    <section id="categories" class="category-search-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>🔍 Kategori Wisata Alam</h2>
+                <p>Find your perfect nature experience based on your interests</p>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" class="search-box" id="category-search" placeholder="Search nature activities (beach, mountain, waterfall, etc)">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+            
+            <div class="categories-grid">
+                <div class="category-card" data-category="pantai">
+                    <div class="category-icon">
+                        <i class="fas fa-umbrella-beach"></i>
+                    </div>
+                    <h3>Pantai</h3>
+                    <p>Pristine beaches & clear blue waters</p>
+                </div>
+                
+                <div class="category-card" data-category="gunung">
+                    <div class="category-icon">
+                        <i class="fas fa-mountain"></i>
+                    </div>
+                    <h3>Pegunungan</h3>
+                    <p>Mountain hiking & epic views</p>
+                </div>
+                
+                <div class="category-card" data-category="air-terjun">
+                    <div class="category-icon">
+                        <i class="fas fa-water"></i>
+                    </div>
+                    <h3>Air Terjun</h3>
+                    <p>Refreshing waterfalls</p>
+                </div>
+                
+                <div class="category-card" data-category="kuliner">
+                    <div class="category-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <h3>Kuliner</h3>
+                    <p>Local culinary delights</p>
+                </div>
+                
+                <div class="category-card" data-category="budaya">
+                    <div class="category-icon">
+                        <i class="fas fa-landmark"></i>
+                    </div>
+                    <h3>Budaya</h3>
+                    <p>Cultural experiences</p>
+                </div>
+                
+                <div class="category-card" data-category="religi">
+                    <div class="category-icon">
+                        <i class="fas fa-place-of-worship"></i>
+                    </div>
+                    <h3>Religi</h3>
+                    <p>Spiritual places</p>
+                </div>
+            </div>
+            
+            <div class="search-results" id="search-results">
+                <div class="section-title">
+                    <h3 id="results-title">Hasil Pencarian</h3>
+                </div>
+                <div class="results-grid" id="results-grid">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>⭐ Testimoni & Reviews</h2>
+                <p>Hear from travelers who have experienced Lombok's natural beauty! 👂</p>
+            </div>
+            
+            <div class="testimonials-container">
+                <div class="testimonials-grid" id="testimonials-grid">
+                    <!-- Testimonials will be populated here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Map Section -->
     <section id="map-section" class="map-section">
         <div class="container">
             <div class="section-title">
-                <h2>🗺️ Peta & Navigasi</h2>
-                <p>Don't get lost, fam! Use our lit navigation to find your way around Lombok 🧭</p>
+                <h2>🗺️ Peta Alam</h2>
+                <p>Navigate through Lombok's natural wonders with our interactive map 🧭</p>
             </div>
             
             <div class="map-container">
@@ -1138,7 +1616,7 @@
                         <div class="form-group">
                             <label for="destination"><i class="fas fa-flag"></i> Destination</label>
                             <select id="destination">
-                                <option value="">Pick your vibe</option>
+                                <option value="">Pick your destination</option>
                                 <option value="-8.3500,116.0391">Gili Trawangan</option>
                                 <option value="-8.4110,116.4572">Gunung Rinjani</option>
                                 <option value="-8.3448,116.0454">Pantai Pink</option>
@@ -1161,7 +1639,7 @@
                             <button class="route-btn" id="calculate-route">
                                 <i class="fas fa-route"></i> Get Route
                             </button>
-                            <button class="route-btn" id="clear-route" style="background: rgba(255,255,255,0.1);">
+                            <button class="route-btn" id="clear-route" style="background: var(--card-bg); color: var(--text-primary);">
                                 <i class="fas fa-times"></i> Clear
                             </button>
                         </div>
@@ -1193,7 +1671,7 @@
         <div class="container">
             <div class="section-title">
                 <h2>💬 Reviews & Ratings</h2>
-                <p>See what the squad is saying about these lit spots! Drop your own review too 👇</p>
+                <p>See what travelers are saying about these amazing natural spots! Drop your own review too 👇</p>
             </div>
             
             <div class="reviews-container">
@@ -1232,7 +1710,7 @@
                         
                         <div class="form-group">
                             <label for="review-text">Your Review</label>
-                            <textarea id="review-text" placeholder="Spill the tea! How was your experience?" required></textarea>
+                            <textarea id="review-text" placeholder="Share your experience with nature!" required></textarea>
                         </div>
                         
                         <button type="submit" class="btn" style="width: 100%;">
@@ -1255,9 +1733,8 @@
             <div class="footer-content">
                 <div class="footer-column">
                     <h3>Visit Lombok</h3>
-                    <p>Your go-to guide for the most lit experiences in Lombok. We're all about good vibes and great adventures! ✨</p>
+                    <p>Your gateway to Lombok's natural paradise. Experience the beauty of untouched nature! 🌿</p>
                     <div class="social-links">
-                        <a href="#"><i class="fab fa-tiktok"></i></a>
                         <a href="#"><i class="fab fa-instagram"></i></a>
                         <a href="#"><i class="fab fa-twitter"></i></a>
                         <a href="#"><i class="fab fa-youtube"></i></a>
@@ -1266,20 +1743,22 @@
                 <div class="footer-column">
                     <h3>Quick Links</h3>
                     <ul style="list-style: none;">
-                        <li><a href="#destinations" style="color: white; text-decoration: none; opacity: 0.8; transition: opacity 0.3s;">🔥 Destinasi</a></li>
-                        <li><a href="#map-section" style="color: white; text-decoration: none; opacity: 0.8; transition: opacity 0.3s;">🗺️ Peta</a></li>
-                        <li><a href="#reviews" style="color: white; text-decoration: none; opacity: 0.8; transition: opacity 0.3s;">💬 Reviews</a></li>
+                        <li><a href="#destinations" style="color: var(--text-primary); text-decoration: none; opacity: 0.8; transition: opacity 0.3s;">🌴 Destinasi</a></li>
+                        <li><a href="#categories" style="color: var(--text-primary); text-decoration: none; opacity: 0.8; transition: opacity 0.3s;">🔍 Kategori</a></li>
+                        <li><a href="#testimonials" style="color: var(--text-primary); text-decoration: none; opacity: 0.8; transition: opacity 0.3s;">⭐ Testimoni</a></li>
+                        <li><a href="#map-section" style="color: var(--text-primary); text-decoration: none; opacity: 0.8; transition: opacity 0.3s;">🗺️ Peta</a></li>
+                        <li><a href="#reviews" style="color: var(--text-primary); text-decoration: none; opacity: 0.8; transition: opacity 0.3s;">💬 Reviews</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
                     <h3>Contact Us</h3>
                     <p><i class="fas fa-phone"></i> +62 812-3456-7890</p>
-                    <p><i class="fas fa-envelope"></i> hello@visitlombok.id</p>
+                    <p><i class="fas fa-envelope"></i> nature@visitlombok.id</p>
                     <p><i class="fas fa-map-marker-alt"></i> Lombok, Indonesia</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 Visit Lombok. No cap, all rights reserved. Made with 💖 for the Gen Z squad</p>
+                <p>&copy; 2024 Visit Lombok. Experience the beauty of nature 🌿</p>
             </div>
         </div>
     </footer>
@@ -1287,6 +1766,39 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
     <script>
+        // Theme Toggle Functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        // Check for saved theme or prefer color scheme
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        body.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+            
+            // Add transition effect
+            body.style.transition = 'all 0.3s ease';
+            setTimeout(() => {
+                body.style.transition = '';
+            }, 300);
+        });
+
+        function updateThemeIcon(theme) {
+            const icon = themeToggle.querySelector('i');
+            if (theme === 'dark') {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-moon';
+            }
+        }
+
         // Mobile Navigation Toggle
         const hamburger = document.querySelector('.hamburger');
         const navLinks = document.querySelector('.nav-links');
@@ -1324,9 +1836,218 @@
         window.addEventListener('scroll', checkScroll);
         window.addEventListener('load', checkScroll);
 
+        // Category Search Functionality
+        const categorySearch = document.getElementById('category-search');
+        const categoryCards = document.querySelectorAll('.category-card');
+        const searchResults = document.getElementById('search-results');
+        const resultsGrid = document.getElementById('results-grid');
+        const resultsTitle = document.getElementById('results-title');
+
+        // Sample data for destinations by category
+        const destinationsByCategory = {
+            'pantai': [
+                {
+                    name: 'Pantai Kuta Lombok',
+                    description: 'Surfing spot yang epic dengan pasir putih dan ombak yang cocok buat pemula sampai pro!',
+                    image: 'https://images.unsplash.com/photo-1552465018-69adfa0d01d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                    rating: 4.5,
+                    price: 'IDR 15K'
+                },
+                {
+                    name: 'Pantai Tanjung Aan',
+                    description: 'Pasirnya sehalus tepung dan airnya sebening kristal. Perfect untuk swimming dan foto!',
+                    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                    rating: 4.8,
+                    price: 'IDR 10K'
+                }
+            ],
+            'gunung': [
+                {
+                    name: 'Gunung Rinjani',
+                    description: 'Pendakian epic ke puncak tertinggi di Lombok. Danau Segara Anak jadi rewardnya!',
+                    image: 'https://images.unsplash.com/photo-1575361203267-03183f232258?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                    rating: 5.0,
+                    price: 'IDR 150K'
+                }
+            ],
+            'air-terjun': [
+                {
+                    name: 'Air Terjun Tiu Kelep',
+                    description: 'Air terjun dengan kolam alami yang bisa buat berenang. Mistis tapi mempesona!',
+                    image: 'https://images.unsplash.com/photo-1556817413-58b5c5522cc1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                    rating: 4.6,
+                    price: 'IDR 10K'
+                }
+            ]
+        };
+
+        // Category names for display
+        const categoryNames = {
+            'pantai': 'Pantai',
+            'gunung': 'Gunung & Bukit',
+            'air-terjun': 'Air Terjun',
+            'kuliner': 'Kuliner',
+            'budaya': 'Budaya & Tradisi',
+            'religi': 'Wisata Religi'
+        };
+
+        // Add click event to category cards
+        categoryCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const category = card.getAttribute('data-category');
+                searchByCategory(category);
+                categorySearch.value = categoryNames[category] || category;
+            });
+        });
+
+        // Add input event to search box
+        categorySearch.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            if (searchTerm.length > 2) {
+                // Find matching category
+                const matchedCategory = Object.keys(categoryNames).find(key => 
+                    categoryNames[key].toLowerCase().includes(searchTerm) || 
+                    key.includes(searchTerm)
+                );
+                
+                if (matchedCategory) {
+                    searchByCategory(matchedCategory);
+                } else {
+                    // Show all results that match the search term
+                    showAllMatchingResults(searchTerm);
+                }
+            } else if (searchTerm.length === 0) {
+                searchResults.classList.remove('active');
+            }
+        });
+
+        function searchByCategory(category) {
+            const destinations = destinationsByCategory[category] || [];
+            displayResults(destinations, categoryNames[category] || category);
+        }
+
+        function showAllMatchingResults(searchTerm) {
+            let allResults = [];
+            
+            Object.keys(destinationsByCategory).forEach(category => {
+                const categoryDestinations = destinationsByCategory[category];
+                const filtered = categoryDestinations.filter(dest => 
+                    dest.name.toLowerCase().includes(searchTerm) ||
+                    dest.description.toLowerCase().includes(searchTerm)
+                );
+                
+                allResults = [...allResults, ...filtered];
+            });
+            
+            displayResults(allResults, `Hasil untuk "${searchTerm}"`);
+        }
+
+        function displayResults(destinations, categoryName) {
+            resultsTitle.textContent = `${categoryName} (${destinations.length} hasil)`;
+            resultsGrid.innerHTML = '';
+            
+            if (destinations.length === 0) {
+                resultsGrid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                        <i class="fas fa-search" style="font-size: 3rem; opacity: 0.5; margin-bottom: 20px;"></i>
+                        <h3 style="margin-bottom: 10px;">Ga ada hasil nih 😅</h3>
+                        <p>Coba kata kunci lain atau pilih kategori yang tersedia!</p>
+                    </div>
+                `;
+            } else {
+                destinations.forEach(dest => {
+                    const ratingStars = '★'.repeat(Math.floor(dest.rating)) + '☆'.repeat(5 - Math.floor(dest.rating));
+                    
+                    const resultCard = document.createElement('div');
+                    resultCard.className = 'result-card animate-on-scroll';
+                    resultCard.innerHTML = `
+                        <div class="result-image">
+                            <img src="${dest.image}" alt="${dest.name}">
+                        </div>
+                        <div class="result-info">
+                            <h3>${dest.name}</h3>
+                            <p>${dest.description}</p>
+                            <div class="result-meta">
+                                <div class="result-rating">
+                                    ${ratingStars} <span>${dest.rating}</span>
+                                </div>
+                                <div class="result-price">${dest.price}</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    resultsGrid.appendChild(resultCard);
+                });
+            }
+            
+            searchResults.classList.add('active');
+            
+            // Trigger animation
+            setTimeout(() => {
+                const newAnimateElements = document.querySelectorAll('.result-card');
+                newAnimateElements.forEach(element => {
+                    element.classList.add('animated');
+                });
+            }, 100);
+        }
+
+        // Testimonials Data and Display
+        const testimonialsData = [
+            {
+                name: "Raka Pratama",
+                avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                location: "Jakarta",
+                rating: 5,
+                text: "Lombok's natural beauty is beyond words! The beaches are pristine and the mountains are absolutely majestic. Truly a paradise!",
+                destination: "Pantai Kuta Lombok",
+                date: "2 minggu lalu"
+            },
+            {
+                name: "Sari Dewi",
+                avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                location: "Bandung",
+                rating: 5,
+                text: "Trekking Rinjani was challenging but the sunrise view from the top made everything worth it. Nature at its finest!",
+                destination: "Gunung Rinjani",
+                date: "1 bulan lalu"
+            }
+        ];
+
+        function displayTestimonials() {
+            const testimonialsGrid = document.getElementById('testimonials-grid');
+            
+            testimonialsData.forEach(testimonial => {
+                const ratingStars = '★'.repeat(testimonial.rating) + '☆'.repeat(5 - testimonial.rating);
+                
+                const testimonialCard = document.createElement('div');
+                testimonialCard.className = 'testimonial-card animate-on-scroll';
+                testimonialCard.innerHTML = `
+                    <div class="testimonial-header">
+                        <img src="${testimonial.avatar}" alt="${testimonial.name}" class="testimonial-avatar">
+                        <div class="testimonial-user">
+                            <h4>${testimonial.name}</h4>
+                            <p>${testimonial.location} • ${testimonial.date}</p>
+                        </div>
+                    </div>
+                    <div class="testimonial-rating">
+                        ${ratingStars}
+                    </div>
+                    <div class="testimonial-text">
+                        "${testimonial.text}"
+                    </div>
+                    <div class="testimonial-destination">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>${testimonial.destination}</span>
+                    </div>
+                `;
+                
+                testimonialsGrid.appendChild(testimonialCard);
+            });
+        }
+
         // Map and Routing Implementation
         let map, routingControl, userLocation, userMarker;
-        let routeLine;
 
         function initMap() {
             // Initialize map centered on Lombok
@@ -1361,7 +2082,7 @@
                 const marker = L.marker(coords, {icon: customIcon})
                     .addTo(map)
                     .bindPopup(`
-                        <div style="background: var(--glass-dark); backdrop-filter: blur(20px); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); color: white;">
+                        <div style="background: var(--glass-dark); backdrop-filter: blur(20px); padding: 15px; border-radius: 10px; border: 1px solid var(--border-color); color: var(--text-primary);">
                             <h3 style="margin: 0 0 10px 0; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${dest}</h3>
                             <button class="set-destination" style="background: var(--gradient); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; transition: all 0.3s ease;">
                                 Take me there! 🚀
@@ -1382,25 +2103,17 @@
                 showAlternatives: false,
                 lineOptions: {
                     styles: [
-                        {color: '#ff2d95', opacity: 0.8, weight: 6},
-                        {color: '#8a2be2', opacity: 0.6, weight: 8},
-                        {color: '#00f5ff', opacity: 0.4, weight: 10}
+                        {color: '#2D9CDB', opacity: 0.8, weight: 6}
                     ],
                     extendToWaypoints: true,
                     missingRouteTolerance: 10
-                },
-                altLineOptions: {
-                    styles: [
-                        {color: '#ff2d95', opacity: 0.6, weight: 4},
-                        {color: '#8a2be2', opacity: 0.4, weight: 6}
-                    ]
                 },
                 createMarker: function(i, waypoint, n) {
                     return L.marker(waypoint.latLng, {
                         icon: L.divIcon({
                             html: i === 0 ? 
-                                '<div style="background: #00ff88; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white;"></div>' :
-                                '<div style="background: #ff2d95; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white;"></div>',
+                                '<div style="background: #27AE60; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white;"></div>' :
+                                '<div style="background: #2D9CDB; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white;"></div>',
                             className: 'waypoint-marker',
                             iconSize: [20, 20]
                         })
@@ -1425,7 +2138,7 @@
             
             // Manual location input
             document.getElementById('manual-location').addEventListener('click', () => {
-                const location = prompt('Drop your coordinates or address (example: -8.5890,116.0980):');
+                const location = prompt('Enter your coordinates or address (example: -8.5890,116.0980):');
                 if (location) {
                     setManualLocation(location);
                 }
@@ -1454,26 +2167,6 @@
                         easeLinearity: 0.25
                     });
                 });
-            });
-            
-            // Set destination from marker popup
-            map.on('popupopen', function(e) {
-                const popup = e.popup;
-                const setDestinationBtn = popup._contentNode.querySelector('.set-destination');
-                
-                if (setDestinationBtn) {
-                    setDestinationBtn.addEventListener('click', function() {
-                        const marker = e.popup._source;
-                        const coords = marker.getLatLng();
-                        document.getElementById('destination').value = `${coords.lat},${coords.lng}`;
-                        
-                        // Add pulse animation to button
-                        this.style.transform = 'scale(0.95)';
-                        setTimeout(() => {
-                            this.style.transform = 'scale(1)';
-                        }, 150);
-                    });
-                }
             });
         }
 
@@ -1507,7 +2200,7 @@
                     // Add user location marker with animation
                     userMarker = L.marker(userLocation, {
                         icon: L.divIcon({
-                            html: '<div style="background: #00ff88; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 20px #00ff88; animation: pulse 2s infinite;"></div>',
+                            html: '<div style="background: #27AE60; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 20px #27AE60; animation: pulse 2s infinite;"></div>',
                             className: 'user-location-marker',
                             iconSize: [30, 30]
                         })
@@ -1543,57 +2236,13 @@
                     locationInput.value = errorMessage;
                     detectBtn.innerHTML = '<i class="fas fa-crosshairs"></i> Detect Me';
                     detectBtn.disabled = false;
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 15000,
-                    maximumAge: 60000
                 }
             );
-        }
-
-        function setManualLocation(location) {
-            let coords;
-            
-            // Try to parse as coordinates
-            if (location.includes(',')) {
-                const parts = location.split(',');
-                coords = [parseFloat(parts[0].trim()), parseFloat(parts[1].trim())];
-            } else {
-                // For demo purposes, use a fixed location in Lombok
-                coords = [-8.5890, 116.0980]; // Mataram coordinates
-            }
-            
-            userLocation = coords;
-            
-            // Remove existing user marker
-            if (userMarker) {
-                map.removeLayer(userMarker);
-            }
-            
-            // Add user location marker
-            userMarker = L.marker(coords, {
-                icon: L.divIcon({
-                    html: '<div style="background: #00ff88; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 20px #00ff88;"></div>',
-                    className: 'user-location-marker',
-                    iconSize: [30, 30]
-                })
-            }).addTo(map);
-            
-            // Update location input
-            document.getElementById('start-location').value = `Lat: ${coords[0].toFixed(4)}, Lng: ${coords[1].toFixed(4)}`;
-            
-            // Center map on location with animation
-            map.flyTo(coords, 13, {
-                duration: 1.5,
-                easeLinearity: 0.25
-            });
         }
 
         function calculateRoute() {
             const destinationSelect = document.getElementById('destination');
             const destinationCoords = destinationSelect.value.split(',');
-            const calculateBtn = document.getElementById('calculate-route');
             
             if (!userLocation) {
                 alert('Please set your location first! 📍');
@@ -1610,15 +2259,8 @@
                 parseFloat(destinationCoords[1])
             ];
             
-            // Show loading state
-            calculateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating...';
-            calculateBtn.disabled = true;
-            
-            // Clear previous route
-            if (routingControl) {
-                routingControl.getContainer().style.display = 'none';
-                routingControl.setWaypoints([]);
-            }
+            // Show routing control
+            routingControl.getContainer().style.display = 'block';
             
             // Set waypoints for routing
             routingControl.setWaypoints([
@@ -1626,55 +2268,22 @@
                 L.latLng(destination[0], destination[1])
             ]);
             
-            // Show routing control
-            routingControl.getContainer().style.display = 'block';
-            
             // Fit map to route
             map.fitBounds(routingControl.getWaypoints(), { padding: [20, 20] });
             
-            // Listen for route found event
-            routingControl.on('routesfound', function(e) {
-                const routes = e.routes;
-                const route = routes[0];
-                
-                // Update route info
-                updateRouteInfo(route);
-                
-                // Reset button
-                calculateBtn.innerHTML = '<i class="fas fa-route"></i> Get Route';
-                calculateBtn.disabled = false;
-            });
+            // Show route info
+            document.getElementById('route-info').classList.add('active');
+            document.getElementById('distance').textContent = 'Calculating...';
+            document.getElementById('duration').textContent = 'Calculating...';
             
-            // Handle errors
-            routingControl.on('routingerror', function(e) {
-                alert('Could not calculate route. Please try again! 😅');
-                calculateBtn.innerHTML = '<i class="fas fa-route"></i> Get Route';
-                calculateBtn.disabled = false;
-            });
-        }
-
-        function updateRouteInfo(route) {
-            const routeInfo = document.getElementById('route-info');
-            const distanceEl = document.getElementById('distance');
-            const durationEl = document.getElementById('duration');
-            const transportModeDisplay = document.getElementById('transport-mode-display');
-            
-            // Show route info with animation
-            routeInfo.classList.add('active');
-            
-            // Update info
-            distanceEl.textContent = (route.summary.totalDistance / 1000).toFixed(1) + ' km';
-            durationEl.textContent = Math.round(route.summary.totalTime / 60) + ' menit';
-            
-            // Update transport mode
+            const mode = document.getElementById('transport-mode').value;
             const modeNames = {
                 'car': 'Mobil 🚗',
                 'motorcycle': 'Motor 🏍️',
                 'bicycle': 'Sepeda 🚲',
                 'foot': 'Jalan Kaki 🚶'
             };
-            const mode = document.getElementById('transport-mode').value;
-            transportModeDisplay.textContent = modeNames[mode];
+            document.getElementById('transport-mode-display').textContent = modeNames[mode];
         }
 
         function clearRoute() {
@@ -1747,7 +2356,7 @@
                 stars.forEach(star => star.classList.remove('active'));
                 ratingValue.value = '0';
                 
-                alert('Review posted! Thanks for the tea ☕');
+                alert('Review posted! Thank you for sharing your experience! 🌟');
             });
             
             // Display existing reviews
@@ -1763,7 +2372,7 @@
             reviewsList.innerHTML = '';
             
             if (reviews.length === 0) {
-                reviewsList.innerHTML = '<p style="text-align: center; opacity: 0.7;">No reviews yet. Be the first to spill the tea! ☕</p>';
+                reviewsList.innerHTML = '<p style="text-align: center; opacity: 0.7;">No reviews yet. Be the first to share your experience! 🌟</p>';
                 return;
             }
             
@@ -1779,50 +2388,37 @@
                         <div class="review-date">${review.date}</div>
                     </div>
                     <div class="review-rating" style="color: #ffd700;">${stars}</div>
-                    <div class="review-destination" style="opacity: 0.8; margin-bottom: 10px; font-size: 0.9rem;">
-                        <i class="fas fa-map-marker-alt"></i> ${review.destination}
-                    </div>
                     <div class="review-text">${review.text}</div>
                 `;
                 
                 reviewsList.appendChild(reviewCard);
             });
-            
-            // Trigger animation for new reviews
-            checkScroll();
         }
 
         // Initialize everything when page loads
         window.addEventListener('load', function() {
             initMap();
             initReviewSystem();
+            displayTestimonials();
             
             // Add some sample reviews if none exist
             if (reviews.length === 0) {
                 reviews = [
                     {
                         id: 1,
-                        name: "Sarah 🏄‍♀️",
+                        name: "Sarah 🌊",
                         destination: "Gili Trawangan",
                         rating: 5,
-                        text: "No cap, this place is absolutely fire! The water is so clear and the vibes are immaculate. Definitely coming back!",
+                        text: "The water is so clear and the marine life is incredible! Perfect for snorkeling and relaxing.",
                         date: "15/03/2024"
                     },
                     {
                         id: 2,
-                        name: "Alex 💪",
+                        name: "Alex ⛰️",
                         destination: "Gunung Rinjani",
                         rating: 5,
-                        text: "This hike was lowkey brutal but the sunrise view from the top? Absolutely worth it. Main character energy fr!",
+                        text: "Challenging hike but the sunrise view from the summit was absolutely breathtaking!",
                         date: "10/03/2024"
-                    },
-                    {
-                        id: 3,
-                        name: "Maya 🌸",
-                        destination: "Pantai Pink",
-                        rating: 4,
-                        text: "The pink sand is actually real! Photos don't do it justice. Perfect spot for the gram 📸",
-                        date: "05/03/2024"
                     }
                 ];
                 saveReviews();
