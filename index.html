@@ -1232,119 +1232,188 @@
     <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
     
     <script>
-        // ==================== PREMIUM GOOGLE SHEETS INTEGRATION ====================
-        const SHEET_ID = '1BW0mTwH0ihwWQGCHMSKqvcLn1HSebgkFp-9t8lZbfgg';
-        
-        // Real Google Apps Script URL - GANTI DENGAN URL ANDA
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxyz123/exec';
+        // ==================== DATA 170 TITIK WISATA LOMBOK ====================
+        const lombokDestinations = [
+            // Destinasi Lombok Tengah (1-51)
+            { id: 1, name: "Pantai Kuta Mandalika", lat: -8.893797615746463, lng: 116.28338487671442, category: "beach", price: "Rp10.000", hours: "06.00 – 18.00 WITA" },
+            { id: 2, name: "Pantai Tanjung Aan", lat: -8.908469108927415, lng: 116.32892113068577, category: "beach", price: "Rp10.000", hours: "06.00 – 18.00 WITA" },
+            { id: 3, name: "Bukit Merese", lat: -8.913606622568365, lng: 116.31898484232856, category: "mountain", price: "Rp5.000 – Rp10.000", hours: "06.00 – 18.00 WITA" },
+            { id: 4, name: "Pantai Selong Belanak", lat: -8.871911301721342, lng: 116.16243839999998, category: "beach", price: "Rp10.000", hours: "06.00 – 18.30 WITA" },
+            { id: 5, name: "Pantai Mawi", lat: -8.882123531859891, lng: 116.1599634, category: "beach", price: "Rp10.000", hours: "06.00 – 18.00 WITA" },
+            { id: 6, name: "Air Terjun Benang Stokel and Benang Kelambu", lat: -8.5327378329568, lng: 116.3413934288357, category: "waterfall", price: "Rp10.000 – Rp20.000", hours: "08.00 – 17.00 WITA" },
+            { id: 7, name: "Pantai Mawun", lat: -8.897234769866934, lng: 116.22922670318695, category: "beach", price: "Rp5.000", hours: "06.00 – 18.00 WITA" },
+            { id: 8, name: "Bukit Seger", lat: -8.907677609904608, lng: 116.29955127116426, category: "mountain", price: "Rp10.000", hours: "06.00 – 18.00 WITA" },
+            { id: 9, name: "Pantai Bloam Gerupuk", lat: -8.926668721791604, lng: 116.34951638650718, category: "beach", price: "Rp10.000", hours: "06.00 – 18.00 WITA" },
+            { id: 10, name: "Air Terjun Babak Pelangi", lat: -8.545673720205889, lng: 116.33188047116427, category: "waterfall", price: "Rp10.000", hours: "08.00 – 17.00 WITA" },
+            { id: 11, name: "Air Terjun Tenjong", lat: -8.687557653706621, lng: 116.31123861534289, category: "waterfall", price: "Rp10.000", hours: "08.00 – 17.00 WITA" },
+            { id: 12, name: "Air Terjun Benang Stokel and Benang Kelambu Waterfall", lat: -8.532759053118225, lng: 116.3413827, category: "waterfall", price: "Rp10.000 – Rp20.000", hours: "08.00 – 17.00 WITA" },
+            { id: 13, name: "Taman Hutan Raya Nuraksa", lat: -8.493952019691854, lng: 116.31208625223509, category: "nature", price: "Rp5.000", hours: "08.00 – 17.00 WITA" },
+            { id: 14, name: "Lembah Gaharu", lat: -8.554500413761435, lng: 116.30338172087573, category: "nature", price: "Rp10.000", hours: "07.00 – 17.00 WITA" },
+            { id: 15, name: "Danau Biru", lat: -8.528709380920608, lng: 116.3113554153429, category: "nature", price: "Rp5.000", hours: "07.00 – 17.30 WITA" },
+            { id: 16, name: "Air Terjun Elong Tune", lat: -8.551292042891138, lng: 116.32772116718188, category: "waterfall", price: "Rp10.000", hours: "08.00 – 17.00 WITA" },
+            { id: 17, name: "Air Terjun Babak Pelangi", lat: -8.545763894311984, lng: 116.33184827882455, category: "waterfall", price: "Rp10.000", hours: "08.00 – 17.00 WITA" },
+            { id: 18, name: "Bukit Tunak", lat: -8.911205325040449, lng: 116.38090322255856, category: "mountain", price: "Rp10.000", hours: "06.00 – 18.00 WITA" },
+            { id: 19, name: "Taman Wisata Alam Gunung Tunak", lat: -8.910991176420412, lng: 116.38097379720877, category: "nature", price: "Rp10.000", hours: "07.00 – 17.00 WITA" },
+            { id: 20, name: "Desa Wisata Hijau Bilebante", lat: -8.619563632566972, lng: 116.18647984224447, category: "culture", price: "Rp5.000 – Rp15.000", hours: "07.00 – 18.00 WITA" },
+            { id: 21, name: "Industri Tenun Patuh", lat: -8.693190467630352, lng: 116.22530317611749, category: "culture", price: "Gratis", hours: "08.00 – 17.00 WITA" },
+            { id: 22, name: "Desa Wisata Karang Sidemen", lat: -8.562957401410037, lng: 116.30961544232856, category: "culture", price: "Rp10.000", hours: "07.00 – 18.00 WITA" },
+            { id: 23, name: "Traditional Kampung Ende", lat: -8.82113756813316, lng: 116.29381161534288, category: "culture", price: "Rp10.000", hours: "07.00 – 18.00 WITA" },
+            { id: 24, name: "Pasar Bambu Bonjeruk", lat: -8.648123440678297, lng: 116.21230029786955, category: "culinary", price: "Rp10.000 – Rp30.000", hours: "06.00 – 17.00 WITA" },
+            { id: 25, name: "Lesehan Taliwang Cakra", lat: -8.702490991042371, lng: 116.26661021164281, category: "culinary", price: "Rp25.000 – Rp60.000", hours: "10.00 – 22.00 WITA" },
+            { id: 26, name: "Nasi Balap Puyung Inaq Esun", lat: -8.684634515591002, lng: 116.24284567301433, category: "culinary", price: "Rp20.000 – Rp40.000", hours: "07.00 – 21.00 WITA" },
+            { id: 27, name: "Pawon Sasak Tastura", lat: -8.704105576183055, lng: 116.27301040000002, category: "culinary", price: "Rp25.000 – Rp55.000", hours: "10.00 – 22.00 WITA" },
+            { id: 28, name: "Rumah Makan Keker Sukarara", lat: -8.70407447616235, lng: 116.20726299999995, category: "culinary", price: "Rp20.000 – Rp45.000", hours: "09.00 – 21.00 WITA" },
+            { id: 29, name: "Ayam Merangkat Bonjeruk", lat: -8.648349580218078, lng: 116.2120143441786, category: "culinary", price: "Rp20.000 – Rp40.000", hours: "09.00 – 21.00 WITA" },
+            { id: 30, name: "Lesehan Dusun Semilir", lat: -8.64528609559051, lng: 116.2297135558214, category: "culinary", price: "Rp20.000 – Rp50.000", hours: "10.00 – 22.00 WITA" },
+            { id: 31, name: "Lesehan Asri", lat: -8.707179441990714, lng: 116.28063647116429, category: "culinary", price: "Rp25.000 – Rp50.000", hours: "09.00 – 22.00 WITA" },
+            { id: 32, name: "Pawon 21 Bonjeruk", lat: -8.642559770361158, lng: 116.22520725582137, category: "culinary", price: "Rp20.000 – Rp45.000", hours: "09.00 – 21.00 WITA" },
+            { id: 33, name: "Dapur Sasak Restaurant", lat: -8.793196252185357, lng: 116.28650495952147, category: "culinary", price: "Rp25.000 – Rp60.000", hours: "10.00 – 22.00 WITA" },
+            { id: 34, name: "Nasi Balap Puyung RM Cahaya", lat: -8.75685022271295, lng: 116.25463534417862, category: "culinary", price: "Rp20.000 – Rp35.000", hours: "07.00 – 21.00 WITA" },
+            { id: 35, name: "Gulas Garden", lat: -8.889391501125413, lng: 116.28192375767145, category: "culinary", price: "Rp40.000 – Rp100.000", hours: "10.00 – 22.00 WITA" },
+            { id: 36, name: "El Bazar Cafe & Restaurant", lat: -8.89038140211371, lng: 116.27689611534288, category: "culinary", price: "Rp45.000 – Rp120.000", hours: "10.00 – 22.00 WITA" },
+            { id: 37, name: "Kenza Cafe & Restaurant Kuta Lombok", lat: -8.89093020209263, lng: 116.27702508650712, category: "culinary", price: "Rp40.000 – Rp100.000", hours: "08.00 – 22.00 WITA" },
+            { id: 38, name: "Ashtari Lombok", lat: -8.882465997129817, lng: 116.2646255, category: "culinary", price: "Rp50.000 – Rp150.000", hours: "08.00 – 22.00 WITA" },
+            { id: 39, name: "Keker Taliwang & Grilled Seafood", lat: -8.871751688422663, lng: 116.27974058835721, category: "culinary", price: "Rp30.000 – Rp80.000", hours: "10.00 – 22.00 WITA" },
+            { id: 40, name: "TANAH Restaurant", lat: -8.88793579990908, lng: 116.2726746153429, category: "culinary", price: "Rp60.000 – Rp150.000", hours: "10.00 – 22.00 WITA" },
+            { id: 41, name: "L'Olivier Restaurant", lat: -8.886813999259852, lng: 116.27584768650716, category: "culinary", price: "Rp50.000 – Rp130.000", hours: "10.00 – 22.00 WITA" },
+            { id: 42, name: "Waroeng Sulawesi", lat: -8.875847491671921, lng: 116.2765393441786, category: "culinary", price: "Rp25.000 – Rp50.000", hours: "09.00 – 21.00 WITA" },
+            { id: 43, name: "Mie Rampok Lombok Praya", lat: -8.702907717788763, lng: 116.2645414, category: "culinary", price: "Rp25.000 – Rp45.000", hours: "10.00 – 21.00 WITA" },
+            { id: 44, name: "Puri Boga", lat: -8.696188159934454, lng: 116.27051888835719, category: "culinary", price: "Rp30.000 – Rp60.000", hours: "10.00 – 21.00 WITA" },
+            { id: 45, name: "Nurina bebek", lat: -8.698662872559677, lng: 116.26393028465712, category: "culinary", price: "Rp25.000 – Rp55.000", hours: "09.00 – 21.00 WITA" },
+            { id: 46, name: "Bale Beleq Pejanggik", lat: -8.748497625916904, lng: 116.32823816595042, category: "culture", price: "Rp5.000", hours: "07.00 – 17.00 WITA" },
+            { id: 47, name: "Sade Village", lat: -8.839133276668301, lng: 116.29199782883573, category: "culture", price: "Rp10.000", hours: "07.00 – 18.00 WITA" },
+            { id: 48, name: "Masjid Kuno Rembitan", lat: -8.829264256739693, lng: 116.29443494417862, category: "culture", price: "Gratis", hours: "06.00 – 18.00 WITA" },
+            { id: 49, name: "Makam Wali Nyato", lat: -8.835734473545813, lng: 116.31102033068576, category: "culture", price: "Gratis", hours: "06.00 – 18.00 WITA" },
+            { id: 50, name: "Masjid Kuno Gunung Pujut", lat: -8.809664164958686, lng: 116.29935508465712, category: "culture", price: "Gratis", hours: "06.00 – 18.00 WITA" },
+            { id: 51, name: "Makam Datoq Lopan", lat: -8.664349911437693, lng: 116.3236703153429, category: "culture", price: "Gratis", hours: "06.00 – 18.00 WITA" },
 
-        // Premium destination data dengan gambar high-quality
-        const premiumDestinations = [
-            {
-                name: "Gili Trawangan",
-                latitude: -8.3500,
-                longitude: 116.0391,
-                category: "beach",
-                ticket_price: "IDR 50K",
-                opening_hours: "24 Hours",
-                image_url: "https://images.unsplash.com/photo-1577717903315-1691ae25e3bf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-                rating: 4.8,
-                description: "The largest of the Gili Islands, famous for its vibrant coral reefs, crystal clear waters, and stunning sunset views. Perfect for snorkeling, diving, and beach relaxation.",
-                highlights: ["Coral Reefs", "Sunset Views", "Beach Bars", "Snorkeling"],
-                best_time: "April - October",
-                difficulty: "Easy"
-            },
-            {
-                name: "Mount Rinjani",
-                latitude: -8.4110,
-                longitude: 116.4572,
-                category: "mountain",
-                ticket_price: "IDR 150K",
-                opening_hours: "24/7",
-                image_url: "https://images.unsplash.com/photo-1628746406385-efe89ac16d15?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-                rating: 4.9,
-                description: "An active volcano and the second highest mountain in Indonesia. Features a stunning crater lake, hot springs, and challenging hiking trails with breathtaking views.",
-                highlights: ["Crater Lake", "Hot Springs", "Sunrise Views", "Camping"],
-                best_time: "April - November",
-                difficulty: "Challenging"
-            },
-            {
-                name: "Pink Beach",
-                latitude: -8.3448,
-                longitude: 116.0454,
-                category: "beach",
-                ticket_price: "IDR 25K",
-                opening_hours: "7:00 - 18:00",
-                image_url: "https://images.unsplash.com/photo-1597074861081-9c47e5d47b46?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-                rating: 4.5,
-                description: "One of only seven pink sand beaches in the world. The unique pink color comes from crushed coral mixed with white sand, creating a magical landscape.",
-                highlights: ["Pink Sand", "Snorkeling", "Photography", "Crystal Waters"],
-                best_time: "All Year",
-                difficulty: "Easy"
-            },
-            {
-                name: "Sendang Gile Waterfall",
-                latitude: -8.3760,
-                longitude: 116.4010,
-                category: "waterfall",
-                ticket_price: "IDR 20K",
-                opening_hours: "7:00 - 17:00",
-                image_url: "https://images.unsplash.com/photo-1556817413-58b5c5522cc1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-                rating: 4.6,
-                description: "A magnificent waterfall located in the jungle near Mount Rinjani. The 30-meter high waterfall creates a refreshing natural pool perfect for swimming.",
-                highlights: ["Natural Pool", "Jungle Trek", "Swimming", "Photography"],
-                best_time: "Dry Season",
-                difficulty: "Moderate"
-            },
-            {
-                name: "Senggigi Beach",
-                latitude: -8.4897,
-                longitude: 116.0414,
-                category: "beach",
-                ticket_price: "FREE",
-                opening_hours: "24 Hours",
-                image_url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-                rating: 4.3,
-                description: "The most developed tourist area in Lombok, featuring a long stretch of beautiful beach with excellent sunset views, restaurants, and accommodations.",
-                highlights: ["Sunset Views", "Restaurants", "Water Sports", "Accommodation"],
-                best_time: "All Year",
-                difficulty: "Easy"
-            },
-            {
-                name: "Benang Stokel Waterfall",
-                latitude: -8.6762,
-                longitude: 116.2714,
-                category: "waterfall",
-                ticket_price: "IDR 15K",
-                opening_hours: "8:00 - 16:00",
-                image_url: "https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-                rating: 4.4,
-                description: "A beautiful twin waterfall surrounded by lush tropical forest. The area features multiple cascades and natural pools ideal for relaxation and photography.",
-                highlights: ["Twin Falls", "Natural Pools", "Forest Trek", "Relaxation"],
-                best_time: "Dry Season",
-                difficulty: "Easy"
-            }
+            // Destinasi Lombok Barat (52-90)
+            { id: 52, name: "Wisata Kuliner Kebon Ayu", lat: -8.692697146239661, lng: 116.1046887153429, category: "culinary", price: "Rp5.000 – Rp15.000", hours: "07.00 – 18.00 WITA" },
+            { id: 53, name: "Warung Makan Aduh Enak'e", lat: -8.70706809888388, lng: 116.08208532698565, category: "culinary", price: "Rp10.000 – Rp25.000", hours: "24 jam" },
+            { id: 54, name: "Dapur Ina Senggigi", lat: -8.49450214940243, lng: 116.05189515767144, category: "culinary", price: "Rp15.000 – Rp40.000", hours: "10.00 – 22.00 WITA" },
+            { id: 55, name: "Lesehan Ayang Asri & Coffee Shop", lat: -8.567352967604123, lng: 116.16036865767144, category: "culinary", price: "Rp10.000 – Rp35.000", hours: "09.00 – 23.00 WITA" },
+            { id: 56, name: "Lesehan Taufik 2", lat: -8.555862021717363, lng: 116.23038107116427, category: "culinary", price: "Rp10.000 – Rp30.000", hours: "09.00 – 22.00 WITA" },
+            { id: 57, name: "Sate Bulayak Suranadi", lat: -8.569993614667101, lng: 116.2318851, category: "culinary", price: "Rp10.000 – Rp20.000", hours: "08.00 – 18.00 WITA" },
+            { id: 58, name: "Sukma Rasa Outlet 3 Bebek Merseng", lat: -8.625573654045244, lng: 116.1261464153429, category: "culinary", price: "Rp12.000 – Rp35.000", hours: "09.00 – 21.00 WITA" },
+            { id: 59, name: "Taman Langit Lombok", lat: -8.514831640927566, lng: 116.09171074232856, category: "nature", price: "Rp10.000 – Rp20.000", hours: "07.00 – 18.00 WITA" },
+            { id: 60, name: "Taman Hutan Raya Nuraksa", lat: -8.520112234091549, lng: 116.28307948465711, category: "nature", price: "Rp5.000 – Rp10.000", hours: "08.00 – 17.00 WITA" },
+            { id: 61, name: "Wisata gunung Aur", lat: -8.573589007787138, lng: 116.26399878650716, category: "mountain", price: "Rp5.000 – Rp10.000", hours: "24 Jam" },
+            { id: 62, name: "Wisata Alam Desa Sesaot", lat: -8.53974832824239, lng: 116.24414784232854, category: "nature", price: "Rp5.000 – Rp15.000", hours: "08.00 – 17.00 WITA" },
+            { id: 63, name: "Air Terjun Timponan", lat: -8.503642155093837, lng: 116.21263724232853, category: "waterfall", price: "Rp5.000 – Rp10.000", hours: "08.00 – 17.00 WITA" },
+            { id: 64, name: "Wisata Berugak Elen Sesaot", lat: -8.542289149800954, lng: 116.24296084232854, category: "nature", price: "Rp5.000 – Rp10.000", hours: "08.00 – 17.00 WITA" },
+            { id: 65, name: "Bunut Ngengkang Attraction", lat: -8.53328349312879, lng: 116.24499095767142, category: "nature", price: "Rp5.000 – Rp10.000", hours: "08.00 – 17.00 WITA" },
+            { id: 66, name: "Tibu Atas Waterfall", lat: -8.540201958186888, lng: 116.2296197, category: "waterfall", price: "Rp5.000 – Rp10.000", hours: "08.00 – 17.00 WITA" },
+            { id: 67, name: "Pantai Goa Landak", lat: -8.71965422997723, lng: 116.03427927116427, category: "beach", price: "Rp5.000 – Rp10.000", hours: "24 Jam" },
+            { id: 68, name: "Bangko Bangko", lat: -8.726097990846995, lng: 115.85769381534288, category: "beach", price: "Rp10.000 – Rp20.000", hours: "24 Jam" },
+            { id: 69, name: "Bukit Tembere", lat: -8.523102439632634, lng: 116.10784231349281, category: "mountain", price: "Rp5.000 – Rp10.000", hours: "24 Jam" },
+            { id: 70, name: "Nambung Beach", lat: -8.86888698474294, lng: 116.10388144417863, category: "beach", price: "Rp5.000 – Rp15.000", hours: "24 Jam" },
+            { id: 71, name: "Buwun Mas Hills", lat: -8.842429362455448, lng: 116.0366394730143, category: "mountain", price: "Rp10.000 – Rp20.000", hours: "07.00 – 18.00 WITA" },
+            { id: 72, name: "Pantai Elak Elak", lat: -8.730293425310316, lng: 115.96626768650717, category: "beach", price: "Rp5.000 – Rp10.000", hours: "24 Jam" },
+            { id: 73, name: "Suranadi Nature Recreation Park", lat: -8.569315332782406, lng: 116.2323478, category: "nature", price: "Rp10.000 – Rp20.000", hours: "08.00 – 18.00 WITA" },
+            { id: 74, name: "Wisata Alam Goa Lawah Lebah Sempage", lat: -8.53954340716502, lng: 116.2767691883572, category: "nature", price: "Rp5.000 – Rp10.000", hours: "08.00 – 17.00 WITA" },
+            { id: 75, name: "Bukit Korea Dopang", lat: -8.523063898238123, lng: 116.12813931349281, category: "mountain", price: "Rp5.000 – Rp10.000", hours: "24 Jam" },
+            { id: 76, name: "Pantai Cemare Lembar", lat: -8.720535106333775, lng: 116.0582094, category: "beach", price: "Rp5.000 – Rp10.000", hours: "24 Jam" },
+            { id: 77, name: "Pantai Kuranji", lat: -8.633561929394292, lng: 116.07231882698565, category: "beach", price: "Rp5.000 – Rp10.000", hours: "24 Jam" },
+            { id: 78, name: "Air Terjun Segenter Pengkoaq", lat: -8.499392463446032, lng: 116.29326047116427, category: "waterfall", price: "Rp5.000 – Rp10.000", hours: "08.00 – 17.00 WITA" },
+            { id: 79, name: "Gili Nanggu", lat: -8.716695950204683, lng: 116.00820455397135, category: "beach", price: "Rp30.000 – Rp50.000", hours: "06.00 – 18.00 WITA" },
+            { id: 80, name: "Gili Bedis", lat: -8.730133201433022, lng: 116.02559851534289, category: "beach", price: "Rp10.000 – Rp20.000", hours: "06.00 – 18.00 WITA" },
+            { id: 81, name: "Desert Point", lat: -8.727193233081797, lng: 115.84025317116428, category: "beach", price: "Rp5.000 – Rp10.000", hours: "24 Jam" },
+            { id: 82, name: "Senggigi Beach", lat: -8.497833233191564, lng: 116.04538583068577, category: "beach", price: "Rp10.000 – Rp20.000", hours: "24 Jam" },
+            { id: 83, name: "Pantai Karang Bangket", lat: -8.64893919658469, lng: 116.0697436, category: "beach", price: "Rp5.000 – Rp10.000", hours: "24 Jam" },
+            { id: 84, name: "Pantai Loang Baloq", lat: -8.602575101208586, lng: 116.07367736931423, category: "beach", price: "Rp5.000 – Rp10.000", hours: "24 Jam" },
+            { id: 85, name: "Taman Narmada", lat: -8.595953737851895, lng: 116.20420524232856, category: "culture", price: "Rp10.000 – Rp20.000", hours: "08.00 – 17.00 WITA" },
+            { id: 86, name: "Pura Batu Bolong", lat: -8.509036469187816, lng: 116.05702620000001, category: "culture", price: "Rp10.000 – Rp20.000", hours: "07.00 – 19.00 WITA" },
+            { id: 87, name: "Makam Batu Layar", lat: -8.511455564341714, lng: 116.06004601360661, category: "culture", price: "Gratis – Rp5.000", hours: "07.00 – 19.00 WITA" },
+            { id: 88, name: "Pura Lingsar", lat: -8.575917936730923, lng: 116.18104004238744, category: "culture", price: "Rp10.000 – Rp20.000", hours: "08.00 – 18.00 WITA" },
+            { id: 89, name: "Desa Wisata Sesaot", lat: -8.540061311246552, lng: 116.2441692941674, category: "culture", price: "Rp5.000 – Rp15.000", hours: "08.00 – 17.00 WITA" },
+            { id: 90, name: "Rumah Adat Karang Bayan", lat: -8.55751289147416, lng: 116.18797775183907, category: "culture", price: "Rp5.000 – Rp15.000", hours: "08.00 – 17.00 WITA" },
+
+            // Destinasi Lombok Timur (91-117)
+            { id: 91, name: "Gunung Rinjani", lat: -8.411316276862003, lng: 116.45726296931424, category: "mountain", price: "Rp150.000 – Rp200.000", hours: "24 Jam" },
+            { id: 92, name: "Pantai Pink (Pantai Tangsi)", lat: -8.859647802064964, lng: 116.5803302, category: "beach", price: "Rp50.000", hours: "24 Jam" },
+            { id: 93, name: "Bukit Selong", lat: -8.36527950734418, lng: 116.54003440000001, category: "mountain", price: "Rp10.000 – Rp20.000", hours: "05.00 – 18.00 WITA" },
+            { id: 94, name: "Air Terjun Jeruk Manis", lat: -8.515431670392651, lng: 116.42403412300251, category: "waterfall", price: "Rp10.000 – Rp15.000", hours: "08:00 – 17:00 WITA" },
+            { id: 95, name: "Pantai Ekas", lat: -8.873660286739067, lng: 116.45507533404901, category: "beach", price: "-", hours: "24 Jam" },
+            { id: 96, name: "Gili Sunut", lat: -8.853141499493454, lng: 116.55001219999998, category: "beach", price: "Rp300.000 – Rp500.000", hours: "24 Jam" },
+            { id: 97, name: "Gili Kondo", lat: -8.440457641729422, lng: 116.73815139348638, category: "beach", price: "-", hours: "24 Jam" },
+            { id: 98, name: "Gili Kapal", lat: -8.444109312117726, lng: 116.74862207149708, category: "beach", price: "Gratis", hours: "24 Jam" },
+            { id: 99, name: "Gili Petagan", lat: -8.424296989782993, lng: 116.74743410800791, category: "beach", price: "Gratis", hours: "24 Jam" },
+            { id: 100, name: "Pantai Tanjung Bloam", lat: -8.87923629961025, lng: 116.57020292883571, category: "beach", price: "Rp10.000", hours: "24 Jam" },
+            { id: 101, name: "Bukit Anak Dara", lat: -8.364030199605475, lng: 116.56060281988832, category: "mountain", price: "Rp10.000 – Rp15.000", hours: "07.00 – 17.00 WITA" },
+            { id: 102, name: "Bukit Pergasingan", lat: -8.345318062928726, lng: 116.53304919971514, category: "mountain", price: "Rp15.000", hours: "24 Jam" },
+            { id: 103, name: "Air Terjun Mayung Polak", lat: -8.508344812910652, lng: 116.44201879886063, category: "waterfall", price: "Rp10.000", hours: "08.00 – 17.00 WITA" },
+            { id: 104, name: "Air Terjun Mangku Sakti", lat: -8.314453082623029, lng: 116.46970232518238, category: "waterfall", price: "Rp5.000 – Rp10.000", hours: "07.00 – 17.00 WITA" },
+            { id: 105, name: "Telaga Biru", lat: -8.54148517540629, lng: 116.39053557116428, category: "nature", price: "Gratis", hours: "07.00 – 17.00 WITA" },
+            { id: 106, name: "Air Terjun Pengkelep", lat: -8.544710695125977, lng: 116.3857575, category: "waterfall", price: "Rp20.000", hours: "24 Jam" },
+            { id: 107, name: "Tereng Wilis Waterfall", lat: -8.54309900489652, lng: 116.38470265767144, category: "waterfall", price: "Rp5.000 – Rp15.000", hours: "07.00 – 17.00 WITA" },
+            { id: 108, name: "Air Terjun Aik Ngemplok", lat: -8.525892005135598, lng: 116.38714952883574, category: "waterfall", price: "Rp5.000 – Rp15.000", hours: "07.00 – 17.00 WITA" },
+            { id: 109, name: "Tetebatu Waterfall", lat: -8.539920475297503, lng: 116.42151399999999, category: "waterfall", price: "Rp10.000 – Rp15.000", hours: "07.00 – 17.00 WITA" },
+            { id: 110, name: "Tereng Wilis Camping Ground", lat: -8.538510295039742, lng: 116.38447235767143, category: "nature", price: "-", hours: "07.00 – 17.00 WITA" },
+            { id: 111, name: "Rumah Adat Desa Bleq Sembalun Lawang", lat: -8.364137677921235, lng: 116.53943550000001, category: "culture", price: "Rp5.000 – Rp20.000", hours: "24 Jam" },
+            { id: 112, name: "Goa Raksasa Tanjung Ringgit", lat: -8.860181950637527, lng: 116.5931953199914, category: "nature", price: "Rp5.000", hours: "06.00 – 17.00 WITA" },
+            { id: 113, name: "Pusat Kuliner Ikan Segar", lat: -8.700152359175457, lng: 116.57103065243587, category: "culinary", price: "Rp50.000 – Rp75.000", hours: "07.00 – 21.00 WITA" },
+            { id: 114, name: "Lesehan Purnama", lat: -8.610815125135478, lng: 116.48004041092116, category: "culinary", price: "Rp20.000 – Rp70.000", hours: "13.00 – 21.00 WITA" },
+            { id: 115, name: "Lesehan Mae Cenggo", lat: -8.615442316408275, lng: 116.49104823123876, category: "culinary", price: "-", hours: "13.00 – 21.00 WITA" },
+            { id: 116, name: "Makam Raja Selaparang", lat: -8.546794891484526, lng: 116.60019033649598, category: "culture", price: "Gratis", hours: "13.00 – 17.00 WITA" },
+            { id: 117, name: "Pura Medana", lat: -8.35906886487244, lng: 116.1229244634781, category: "culture", price: "-", hours: "-" },
+
+            // Destinasi Lombok Utara (118-147)
+            { id: 118, name: "Masjid Kuno Desa Sesait", lat: -8.296404197621191, lng: 116.27242310164911, category: "culture", price: "-", hours: "-" },
+            { id: 119, name: "Masjid Kuno Bayan Beleq", lat: -8.266589635517171, lng: 116.42707919231214, category: "culture", price: "-", hours: "-" },
+            { id: 120, name: "Kubur Beleq", lat: -8.293552192320321, lng: 116.27078449999999, category: "culture", price: "-", hours: "-" },
+            { id: 121, name: "Air Terjun Sendang Gile", lat: -8.306161577809489, lng: 116.40829868465711, category: "waterfall", price: "-", hours: "-" },
+            { id: 122, name: "Gili Air", lat: -8.358851802356646, lng: 116.08136100358664, category: "beach", price: "-", hours: "-" },
+            { id: 123, name: "Gili Trawangan", lat: -8.348218868186132, lng: 116.0373270744556, category: "beach", price: "-", hours: "-" },
+            { id: 124, name: "Gili Meno", lat: -8.34652438698581, lng: 116.05598851140081, category: "beach", price: "-", hours: "-" },
+            { id: 125, name: "Pantai Sire", lat: -8.366108662011014, lng: 116.11255, category: "beach", price: "-", hours: "-" },
+            { id: 126, name: "Air terjun Kerta Gangga", lat: -8.35089534722242, lng: 116.22648755767143, category: "waterfall", price: "-", hours: "-" },
+            { id: 127, name: "Bukit Malimbu", lat: -8.441577107736848, lng: 116.0662837851991, category: "mountain", price: "-", hours: "-" },
+            { id: 128, name: "Klui Beach", lat: -8.465531174997066, lng: 116.03689083412524, category: "beach", price: "-", hours: "-" },
+            { id: 129, name: "Tiu Pupus", lat: -8.33970294615779, lng: 116.21872517116428, category: "waterfall", price: "-", hours: "-" },
+            { id: 130, name: "Air Terjun Tiu Pituq", lat: -8.340138176659204, lng: 116.22075292111545, category: "waterfall", price: "-", hours: "-" },
+            { id: 131, name: "Tiu Kelep Waterfall", lat: -8.312684111362854, lng: 116.40411089999998, category: "waterfall", price: "-", hours: "-" },
+            { id: 132, name: "Pandanan Beach", lat: -8.419543159554685, lng: 116.05017079999999, category: "beach", price: "-", hours: "-" },
+            { id: 133, name: "Bukit Malaka Pandanan", lat: -8.422514845635053, lng: 116.04467763591038, category: "mountain", price: "-", hours: "-" },
+            { id: 134, name: "Pantai Vulkanik Nipah, Malaka", lat: -8.42578367394725, lng: 116.04708089511173, category: "beach", price: "-", hours: "-" },
+            { id: 135, name: "Nipah Beach", lat: -8.433147716895293, lng: 116.04579363398187, category: "beach", price: "-", hours: "-" },
+            { id: 136, name: "Batu Bolong", lat: -8.435781143794092, lng: 116.03588999145522, category: "beach", price: "-", hours: "-" },
+            { id: 137, name: "Air Terjun Mangku Kodeq", lat: -8.287936019730012, lng: 116.47062774163027, category: "waterfall", price: "-", hours: "-" },
+            { id: 138, name: "Air Terjun Kalianjah Sambik Elen", lat: -8.2946028150166, lng: 116.46951414533923, category: "waterfall", price: "-", hours: "-" },
+            { id: 139, name: "Pantai Impos", lat: -8.360196807413386, lng: 116.13607362883573, category: "beach", price: "-", hours: "-" },
+            { id: 140, name: "Masjid Kuno Bayan Beleq", lat: -8.266589635517171, lng: 116.42707919231214, category: "culture", price: "-", hours: "-" },
+            { id: 141, name: "Desa Adat Senaru", lat: -8.302492911506782, lng: 116.40100614232854, category: "culture", price: "-", hours: "-" },
+            { id: 142, name: "Angkringan Balap Tanjung", lat: -8.365507205177387, lng: 116.13239074881179, category: "culinary", price: "-", hours: "-" },
+            { id: 143, name: "Sate Ikan SARI RASA Khas Tanjung", lat: -8.362641799625923, lng: 116.14032851058681, category: "culinary", price: "-", hours: "-" },
+            { id: 144, name: "Lesehan SASAK NARMADA", lat: -8.361474405912187, lng: 116.17218682573127, category: "culinary", price: "-", hours: "-" },
+            { id: 145, name: "Bely Garden", lat: -8.360593481013215, lng: 116.1740996735024, category: "culinary", price: "-", hours: "-" },
+            { id: 146, name: "Ya Ya Warung", lat: -8.348778072939272, lng: 116.061250007674, category: "culinary", price: "-", hours: "-" },
+            { id: 147, name: "Aloha Warung", lat: -8.346448933032702, lng: 116.06093978002858, category: "culinary", price: "-", hours: "-" },
+
+            // Destinasi Mataram (148-170)
+            { id: 148, name: "Pantai Gading Mapak", lat: -8.61859395390315, lng: 116.07514090000001, category: "beach", price: "-", hours: "-" },
+            { id: 149, name: "Pantai Batas Senja Dua", lat: -8.622517388639968, lng: 116.07478, category: "beach", price: "-", hours: "-" },
+            { id: 150, name: "Pantai Ampenan", lat: -8.569375768122388, lng: 116.07197031534291, category: "beach", price: "-", hours: "-" },
+            { id: 151, name: "Museum Negeri Nusa Tenggara Barat", lat: -8.585052369820982, lng: 116.08588132883571, category: "culture", price: "-", hours: "-" },
+            { id: 152, name: "Taman Mayura", lat: -8.586810187139392, lng: 116.1330549, category: "culture", price: "-", hours: "-" },
+            { id: 153, name: "Taman Budaya Provinsi NTB", lat: -8.593825832516712, lng: 116.09966786930146, category: "culture", price: "-", hours: "-" },
+            { id: 154, name: "Kota Tua Ampenan", lat: -8.570716561594645, lng: 116.07624545277966, category: "culture", price: "-", hours: "-" },
+            { id: 155, name: "Masjid Raya Hubbul Wathan - Islamic Center NTB", lat: -8.579961720568198, lng: 116.10061073874492, category: "culture", price: "-", hours: "-" },
+            { id: 156, name: "Pura Meru Cakranegara", lat: -8.58761538289387, lng: 116.13138626533252, category: "culture", price: "-", hours: "-" },
+            { id: 157, name: "Rumah Makan Khas Lombok Tanjung Karang", lat: -8.596699712446284, lng: 116.0759605, category: "culinary", price: "-", hours: "-" },
+            { id: 158, name: "Taliwang Khas Pak Udin", lat: -8.586781687138199, lng: 116.1282777, category: "culinary", price: "-", hours: "-" },
+            { id: 159, name: "Sate Rembiga Ibu Sinnaseh", lat: -8.561454991470393, lng: 116.10942126533209, category: "culinary", price: "-", hours: "-" },
+            { id: 160, name: "Roemah Langko", lat: -8.576986791455388, lng: 116.08379899416799, category: "culinary", price: "-", hours: "-" },
+            { id: 161, name: "Taliwang Irama 3", lat: -8.577931095588989, lng: 116.12554899999999, category: "culinary", price: "-", hours: "-" },
+            { id: 162, name: "Lesehan Green Asri", lat: -8.570320586448515, lng: 116.1425504, category: "culinary", price: "-", hours: "-" },
+            { id: 163, name: "Bebek Pondok Galih", lat: -8.560650895347925, lng: 116.10756409999998, category: "culinary", price: "-", hours: "-" },
+            { id: 164, name: "Lesehan Taliwang Nada", lat: -8.568148113643057, lng: 116.1390723, category: "culinary", price: "-", hours: "-" },
+            { id: 165, name: "Lesehan Dapur Selaparang Lombok", lat: -8.560861004649217, lng: 116.10680807116427, category: "culinary", price: "-", hours: "-" },
+            { id: 166, name: "Seafood Ikan Bakar 99", lat: -8.590421795763545, lng: 116.12489394232855, category: "culinary", price: "-", hours: "-" },
+            { id: 167, name: "Rumah Makan Taliwang Kania", lat: -8.589294587243591, lng: 116.12506789999999, category: "culinary", price: "-", hours: "-" },
+            { id: 168, name: "Dapoer Sasak Restaurant", lat: -8.570642422564813, lng: 116.10234410000001, category: "culinary", price: "-", hours: "-" },
+            { id: 169, name: "Taliwang Alam Nyaman Kebon Roek", lat: -8.565834504579877, lng: 116.0813197, category: "culinary", price: "-", hours: "-" },
+            { id: 170, name: "Padi Food Center", lat: -8.59255277896755, lng: 116.0959602, category: "culinary", price: "-", hours: "-" }
         ];
-
-        // Load destinations dengan fallback yang elegant
-        async function loadDestinations() {
-            try {
-                // Jika menggunakan Google Apps Script, uncomment baris berikut:
-                // const response = await fetch(GAS_URL);
-                // const data = await response.json();
-                // return data.destinations || premiumDestinations;
-                
-                // Untuk sekarang, return premium data
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        resolve(premiumDestinations);
-                    }, 1000); // Simulate loading
-                });
-            } catch (error) {
-                console.log('Using premium sample data:', error);
-                return premiumDestinations;
-            }
-        }
 
         // ==================== PREMIUM INITIALIZATION ====================
         document.addEventListener('DOMContentLoaded', function() {
@@ -1472,7 +1541,7 @@
                 </div>
             `;
 
-            const destinations = await loadDestinations();
+            const destinations = await loadLombokDestinations();
             
             // Clear loading
             destinationGrid.innerHTML = '';
@@ -1489,54 +1558,59 @@
             updateDestinationDropdowns(destinations);
         }
 
+        function loadLombokDestinations() {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve(lombokDestinations);
+                }, 1000);
+            });
+        }
+
         function createDestinationCard(destination, index) {
             const card = document.createElement('div');
             card.className = 'destination-card animate-on-scroll';
             card.style.animationDelay = `${index * 0.1}s`;
-            card.setAttribute('data-location', `${destination.latitude},${destination.longitude}`);
+            card.setAttribute('data-location', `${destination.lat},${destination.lng}`);
             card.setAttribute('data-name', destination.name);
             
-            const stars = '★'.repeat(Math.floor(destination.rating)) + 
-                         '☆'.repeat(5 - Math.floor(destination.rating));
+            const categoryColors = {
+                'beach': '#1abc9c',
+                'mountain': '#e74c3c',
+                'waterfall': '#3498db',
+                'nature': '#27ae60',
+                'culture': '#9b59b6',
+                'culinary': '#f39c12'
+            };
             
-            const highlights = destination.highlights.map(hl => 
-                `<span style="display: inline-block; background: var(--glass); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; margin: 2px;">${hl}</span>`
-            ).join('');
+            const color = categoryColors[destination.category] || '#95a5a6';
             
             card.innerHTML = `
                 <div class="destination-image">
-                    <img src="${destination.image_url}" alt="${destination.name}" loading="lazy">
-                    <div style="position: absolute; top: 16px; right: 16px; background: var(--gradient-gold); color: white; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.9rem;">
-                        ${destination.rating}/5
+                    <img src="https://images.unsplash.com/photo-1559661175-2db6a6d82f20?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" alt="${destination.name}" loading="lazy">
+                    <div style="position: absolute; top: 16px; right: 16px; background: ${color}; color: white; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.9rem;">
+                        ${destination.category}
                     </div>
                 </div>
                 <div class="destination-info">
                     <h3>${destination.name}</h3>
-                    <p>${destination.description}</p>
+                    <p>Destinasi wisata ${destination.category} yang menakjubkan di Lombok. Nikmati pengalaman tak terlupakan dengan pemandangan alam yang memukau.</p>
                     
                     <div class="destination-meta">
                         <div class="rating">
-                            <div class="stars" style="color: var(--gold);">${stars}</div>
+                            <div class="stars" style="color: var(--gold);">★★★★☆</div>
                         </div>
-                        <div class="price">${destination.ticket_price}</div>
+                        <div class="price">${destination.price}</div>
                     </div>
                     
                     <div style="margin: 16px 0;">
-                        ${highlights}
+                        <span style="display: inline-block; background: var(--glass); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; margin: 2px;">${destination.category}</span>
+                        <span style="display: inline-block; background: var(--glass); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; margin: 2px;">Lombok</span>
                     </div>
                     
                     <div class="destination-details">
                         <div class="detail-item">
                             <i class="fas fa-clock"></i>
-                            <span>${destination.opening_hours}</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-signal"></i>
-                            <span>${destination.difficulty}</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-calendar"></i>
-                            <span>${destination.best_time}</span>
+                            <span>${destination.hours}</span>
                         </div>
                         <div class="detail-item">
                             <i class="fas fa-tag"></i>
@@ -1564,7 +1638,7 @@
             
             destinations.forEach(dest => {
                 const mapOption = document.createElement('option');
-                mapOption.value = `${dest.latitude},${dest.longitude}`;
+                mapOption.value = `${dest.lat},${dest.lng}`;
                 mapOption.textContent = dest.name;
                 mapDropdown.appendChild(mapOption);
                 
@@ -1579,11 +1653,11 @@
         let map, routingControl, userLocation, userMarker;
 
         async function initializeMap() {
-            // Initialize map with premium style
+            // Initialize map dengan view Lombok
             map = L.map('map', {
                 zoomControl: false,
                 attributionControl: false
-            }).setView([-8.6500, 116.3167], 10);
+            }).setView([-8.6500, 116.3167], 9);
             
             // Premium map tiles
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -1597,9 +1671,9 @@
                 position: 'bottomright'
             }).addTo(map);
             
-            // Load destinations and add markers
-            const destinations = await loadDestinations();
-            addPremiumMarkers(destinations);
+            // Load semua destinasi Lombok
+            const destinations = lombokDestinations;
+            addLombokMarkers(destinations);
             
             // Initialize routing
             routingControl = L.Routing.control({
@@ -1611,7 +1685,7 @@
                         {color: '#1abc9c', opacity: 0.8, weight: 6}
                     ]
                 },
-                createMarker: function() { return null; }, // No default markers
+                createMarker: function() { return null; },
                 show: false,
                 autoRoute: true,
                 fitSelectedRoutes: true
@@ -1620,62 +1694,78 @@
             routingControl.getContainer().style.display = 'none';
             
             setupMapEventListeners();
+            updateDestinationDropdowns(destinations);
         }
 
-        function addPremiumMarkers(destinations) {
+        function addLombokMarkers(destinations) {
+            const categoryColors = {
+                'beach': '#1abc9c',
+                'mountain': '#e74c3c', 
+                'waterfall': '#3498db',
+                'nature': '#27ae60',
+                'culture': '#9b59b6',
+                'culinary': '#f39c12'
+            };
+
+            const categoryIcons = {
+                'beach': 'umbrella-beach',
+                'mountain': 'mountain',
+                'waterfall': 'water',
+                'nature': 'tree',
+                'culture': 'landmark',
+                'culinary': 'utensils'
+            };
+
             destinations.forEach(dest => {
+                const color = categoryColors[dest.category] || '#95a5a6';
+                const iconName = categoryIcons[dest.category] || 'map-marker-alt';
+                
                 const customIcon = L.divIcon({
                     html: `
-                        <div style="background: var(--gradient-primary); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; border: 3px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.3); animation: pulse 2s infinite;">
-                            <i class="fas fa-${getCategoryIcon(dest.category)}"></i>
+                        <div style="background: ${color}; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; border: 3px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; transition: all 0.3s ease;">
+                            <i class="fas fa-${iconName}"></i>
                         </div>
                     `,
-                    className: 'premium-marker',
-                    iconSize: [50, 50],
-                    iconAnchor: [25, 50]
+                    className: 'lombok-marker',
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 40]
                 });
                 
-                const marker = L.marker([dest.latitude, dest.longitude], {icon: customIcon})
+                const marker = L.marker([dest.lat, dest.lng], {icon: customIcon})
                     .addTo(map)
                     .bindPopup(`
                         <div style="background: var(--glass-dark); padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); color: var(--text-primary); min-width: 280px; backdrop-filter: blur(20px);">
-                            <h3 style="margin: 0 0 12px 0; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.3rem;">${dest.name}</h3>
-                            <p style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--text-secondary);">${dest.description.substring(0, 120)}...</p>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;">
-                                <div style="text-align: center; padding: 8px; background: var(--glass); border-radius: 8px;">
-                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Rating</div>
-                                    <div style="font-weight: 700; color: var(--gold);">${dest.rating}/5</div>
-                                </div>
-                                <div style="text-align: center; padding: 8px; background: var(--glass); border-radius: 8px;">
-                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Price</div>
-                                    <div style="font-weight: 700; color: var(--turquoise);">${dest.ticket_price}</div>
-                                </div>
+                            <h3 style="margin: 0 0 12px 0; color: ${color}; font-size: 1.3rem;">${dest.name}</h3>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                <i class="fas fa-${iconName}" style="color: ${color};"></i>
+                                <span style="text-transform: capitalize; color: var(--text-secondary);">${dest.category}</span>
                             </div>
-                            <button class="set-destination" style="background: var(--gradient-primary); color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-size: 0.9rem; font-weight: 600; width: 100%; transition: all 0.3s ease;">
-                                <i class="fas fa-route"></i> Get Directions
+                            ${dest.price && dest.price !== '-' ? `<p style="margin: 8px 0; color: var(--text-secondary);"><strong>Harga:</strong> ${dest.price}</p>` : ''}
+                            ${dest.hours && dest.hours !== '-' ? `<p style="margin: 8px 0; color: var(--text-secondary);"><strong>Jam:</strong> ${dest.hours}</p>` : ''}
+                            <button class="set-destination" style="background: ${color}; color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-size: 0.9rem; font-weight: 600; width: 100%; transition: all 0.3s ease; margin-top: 12px;">
+                                <i class="fas fa-route"></i> Dapatkan Petunjuk Arah
                             </button>
                         </div>
                     `);
                 
                 marker.on('popupopen', function() {
                     document.querySelector('.set-destination').addEventListener('click', function() {
-                        document.getElementById('destination').value = `${dest.latitude},${dest.longitude}`;
+                        document.getElementById('destination').value = `${dest.lat},${dest.lng}`;
                         calculateRoute();
                         map.closePopup();
                     });
                 });
-            });
-        }
 
-        function getCategoryIcon(category) {
-            const icons = {
-                'beach': 'umbrella-beach',
-                'mountain': 'mountain',
-                'waterfall': 'water',
-                'culture': 'landmark',
-                'adventure': 'hiking'
-            };
-            return icons[category] || 'map-marker-alt';
+                // Hover effects
+                marker.on('mouseover', function() {
+                    this.getElement().style.transform = 'scale(1.2)';
+                    this.getElement().style.transition = 'transform 0.3s ease';
+                });
+
+                marker.on('mouseout', function() {
+                    this.getElement().style.transform = 'scale(1)';
+                });
+            });
         }
 
         function setupMapEventListeners() {
@@ -2104,28 +2194,28 @@
                 {
                     id: 1,
                     name: "Sarah Adventure",
-                    destination: "Gili Trawangan",
+                    destination: "Pantai Kuta Mandalika",
                     rating: 5,
-                    text: "Absolutely breathtaking! The water is so clear you can see the coral reefs from the surface. Snorkeling here was like swimming in an aquarium. The sunset views are unmatched!",
-                    date: "March 15, 2024",
+                    text: "Pantainya sangat indah! Pasir putih dan air yang jernih membuat pengalaman berlibur menjadi tak terlupakan. Sangat recommended!",
+                    date: "Maret 15, 2024",
                     avatar: "https://ui-avatars.com/api/?name=Sarah+Adventure&background=1abc9c&color=fff&size=100"
                 },
                 {
                     id: 2,
                     name: "Alex Explorer",
-                    destination: "Mount Rinjani",
+                    destination: "Gunung Rinjani",
                     rating: 5,
-                    text: "Challenging but incredibly rewarding hike! Waking up at 2 AM for the summit push was tough, but the sunrise over the crater lake made every step worth it. Our guide was fantastic!",
-                    date: "March 10, 2024",
+                    text: "Pendakian yang menantang tapi sangat memuaskan. Sunrise dari puncak Rinjani adalah pemandangan terindah yang pernah saya lihat!",
+                    date: "Maret 10, 2024",
                     avatar: "https://ui-avatars.com/api/?name=Alex+Explorer&background=e74c3c&color=fff&size=100"
                 },
                 {
                     id: 3,
                     name: "Maya Traveler",
-                    destination: "Pink Beach",
+                    destination: "Gili Trawangan",
                     rating: 4,
-                    text: "The pink sand is even more beautiful in person! It's such a unique and photogenic spot. The water is calm and perfect for swimming. Definitely worth the visit!",
-                    date: "February 28, 2024",
+                    text: "Pulau yang sangat cantik! Snorkeling di sini seperti berenang di akuarium raksasa. Coral dan ikan-ikan berwarna-warni sangat menakjubkan.",
+                    date: "Februari 28, 2024",
                     avatar: "https://ui-avatars.com/api/?name=Maya+Traveler&background=9b59b6&color=fff&size=100"
                 }
             ];
