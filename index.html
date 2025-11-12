@@ -1157,6 +1157,79 @@
             box-shadow: 0 8px 20px rgba(0, 217, 255, 0.3);
         }
 
+        /* === SKELETON LOADING === */
+        .skeleton-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 32px;
+            width: 100%;
+        }
+
+        .skeleton {
+            animation: skeleton-pulse 1.5s ease-in-out infinite;
+        }
+
+        .destination-card.skeleton {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 36px;
+            border: 1px solid var(--border-color);
+            min-height: 400px;
+        }
+
+        .skeleton-image {
+            width: 100%;
+            height: 200px;
+            background: var(--glass);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .skeleton-title {
+            width: 80%;
+            height: 24px;
+            background: var(--glass);
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .skeleton-text {
+            width: 100%;
+            height: 16px;
+            background: var(--glass);
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .skeleton-text.short {
+            width: 60%;
+        }
+
+        .skeleton-button {
+            width: 100%;
+            height: 44px;
+            background: var(--glass);
+            border-radius: 22px;
+            margin-top: 20px;
+        }
+
+        @keyframes skeleton-pulse {
+            0% {
+                opacity: 0.6;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                opacity: 0.6;
+            }
+        }
+
+        /* Remove skeleton when loaded */
+        .destination-card:not(.skeleton) .skeleton-content {
+            display: none;
+        }
+
         /* === ANIMATIONS === */
         @keyframes fadeInUp {
             from {
@@ -1293,6 +1366,46 @@
             .breakdown-grid {
                 grid-template-columns: 1fr;
             }
+
+            /* Mobile-specific fixes */
+            .hero h1 {
+                font-size: 2.8rem !important;
+                line-height: 1.2;
+            }
+            
+            .map-controls {
+                position: relative !important;
+                top: 0 !important;
+                right: 0 !important;
+                width: 95% !important;
+                margin: 15px auto !important;
+                transform: none !important;
+            }
+            
+            .destination-grid {
+                grid-template-columns: 1fr !important;
+                gap: 20px !important;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr !important;
+                gap: 20px !important;
+            }
+            
+            .transport-modes {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important;
+            }
+            
+            .transport-mode {
+                padding: 10px 5px !important;
+                font-size: 0.8rem !important;
+            }
+
+            .skeleton-grid {
+                grid-template-columns: 1fr !important;
+                gap: 20px !important;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1312,6 +1425,38 @@
             
             .container {
                 padding: 0 20px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .hero h1 {
+                font-size: 2.2rem !important;
+            }
+            
+            .hero p {
+                font-size: 1.1rem !important;
+            }
+            
+            .section-title h2 {
+                font-size: 2rem !important;
+            }
+            
+            .container {
+                padding: 0 15px !important;
+            }
+            
+            .btn {
+                padding: 14px 20px !important;
+                font-size: 0.9rem !important;
+            }
+
+            .transport-mode {
+                padding: 8px 4px !important;
+                font-size: 0.7rem !important;
+            }
+
+            .transport-mode i {
+                font-size: 1.2rem !important;
             }
         }
     </style>
@@ -1475,11 +1620,7 @@
                 <p data-translate="destinations_subtitle">Explore the most breathtaking spots that Lombok has to offer</p>
             </div>
             <div class="destination-grid" id="destination-grid">
-                <!-- Destinations will be loaded from Google Sheets -->
-                <div class="loading-destinations" style="text-align: center; padding: 60px; grid-column: 1/-1;">
-                    <div class="loading" style="width: 40px; height: 40px; border-width: 4px; margin: 0 auto 20px;"></div>
-                    <p style="color: var(--text-secondary);" data-translate="destinations_loading">Loading amazing destinations...</p>
-                </div>
+                <!-- Destinations will be loaded from JavaScript -->
             </div>
         </div>
     </section>
@@ -2481,37 +2622,49 @@
         async function initializeDestinations() {
             const destinationGrid = document.getElementById('destination-grid');
             
-            // Show loading
-            destinationGrid.innerHTML = `
-                <div class="loading-destinations" style="text-align: center; padding: 60px; grid-column: 1/-1;">
-                    <div class="loading" style="width: 40px; height: 40px; border-width: 4px; margin: 0 auto 20px;"></div>
-                    <p style="color: var(--text-secondary);" data-translate="destinations_loading">Loading amazing destinations...</p>
+            // Show skeleton loading
+            destinationGrid.innerHTML = createSkeletonGrid();
+
+            // Simulate loading delay
+            setTimeout(() => {
+                const destinations = loadLombokDestinations();
+                
+                // Clear loading
+                destinationGrid.innerHTML = '';
+                
+                destinations.forEach((dest, index) => {
+                    const card = createDestinationCard(dest, index);
+                    destinationGrid.appendChild(card);
+                });
+
+                // Initialize scroll animations
+                initializeScrollAnimations();
+                
+                // Update dropdowns
+                updateDestinationDropdowns(destinations);
+            }, 1500);
+        }
+
+        function createSkeletonGrid() {
+            return `
+                <div class="skeleton-grid">
+                    ${Array(6).fill(0).map(() => `
+                        <div class="destination-card skeleton">
+                            <div class="skeleton-image"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton-title"></div>
+                                <div class="skeleton-text"></div>
+                                <div class="skeleton-text short"></div>
+                                <div class="skeleton-button"></div>
+                            </div>
+                        </div>
+                    `).join('')}
                 </div>
             `;
-
-            const destinations = await loadLombokDestinations();
-            
-            // Clear loading
-            destinationGrid.innerHTML = '';
-            
-            destinations.forEach((dest, index) => {
-                const card = createDestinationCard(dest, index);
-                destinationGrid.appendChild(card);
-            });
-
-            // Initialize scroll animations
-            initializeScrollAnimations();
-            
-            // Update dropdowns
-            updateDestinationDropdowns(destinations);
         }
 
         function loadLombokDestinations() {
-            return new Promise(resolve => {
-                setTimeout(() => {
-                    resolve(lombokDestinations);
-                }, 1000);
-            });
+            return lombokDestinations;
         }
 
         function createDestinationCard(destination, index) {
@@ -2534,7 +2687,7 @@
             
             card.innerHTML = `
                 <div class="destination-image">
-                    <img src="https://images.unsplash.com/photo-1559661175-2db6a6d82f20?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" alt="${destination.name}" loading="lazy">
+                    <img src="https://images.unsplash.com/photo-1559661175-2db6a6d82f20?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="${destination.name}" loading="lazy">
                     <div style="position: absolute; top: 16px; right: 16px; background: ${color}; color: white; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.9rem;">
                         ${destination.category}
                     </div>
@@ -2602,46 +2755,75 @@
 
         async function initializeMap() {
             // Initialize map dengan view Lombok
-            map = L.map('map', {
-                zoomControl: false,
-                attributionControl: false
-            }).setView([-8.6500, 116.3167], 9);
-            
-            // Peta terang (light mode)
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
-                maxZoom: 20
-            }).addTo(map);
-            
-            // Custom zoom control
-            L.control.zoom({
-                position: 'bottomright'
-            }).addTo(map);
-            
-            // Load semua destinasi Lombok
-            const destinations = lombokDestinations;
-            addLombokMarkers(destinations);
-            
-            // Initialize routing
-            routingControl = L.Routing.control({
-                waypoints: [],
-                routeWhileDragging: false,
-                showAlternatives: false,
-                lineOptions: {
-                    styles: [
-                        {color: '#00d9ff', opacity: 0.8, weight: 6}
-                    ]
-                },
-                createMarker: function() { return null; },
-                show: false,
-                autoRoute: true,
-                fitSelectedRoutes: true
-            }).addTo(map);
-            
-            routingControl.getContainer().style.display = 'none';
-            
-            setupMapEventListeners();
-            updateDestinationDropdowns(destinations);
+            try {
+                map = L.map('map', {
+                    zoomControl: false,
+                    attributionControl: false
+                }).setView([-8.6500, 116.3167], 9);
+                
+                // Peta terang (light mode)
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors',
+                    maxZoom: 20
+                }).addTo(map);
+                
+                // Custom zoom control
+                L.control.zoom({
+                    position: 'bottomright'
+                }).addTo(map);
+                
+                // Load semua destinasi Lombok
+                const destinations = lombokDestinations;
+                addLombokMarkers(destinations);
+                
+                // Initialize routing dengan error handling
+                try {
+                    routingControl = L.Routing.control({
+                        waypoints: [],
+                        routeWhileDragging: false,
+                        showAlternatives: false,
+                        lineOptions: {
+                            styles: [
+                                {color: '#00d9ff', opacity: 0.8, weight: 6}
+                            ]
+                        },
+                        createMarker: function() { return null; },
+                        show: false,
+                        autoRoute: true,
+                        fitSelectedRoutes: true,
+                        router: new L.Routing.OSRMv1({
+                            serviceUrl: 'https://router.project-osrm.org/route/v1'
+                        })
+                    }).addTo(map);
+                    
+                    routingControl.getContainer().style.display = 'none';
+                } catch (error) {
+                    console.log('Routing control initialized without OSRM (fallback mode)');
+                    // Fallback untuk case routing tidak available
+                    routingControl = {
+                        setWaypoints: function() { 
+                            showNotification('🗺️ Route calculation available in full version'); 
+                        },
+                        getContainer: function() { 
+                            return { style: { display: 'none' } }; 
+                        }
+                    };
+                }
+                
+                setupMapEventListeners();
+                updateDestinationDropdowns(destinations);
+            } catch (error) {
+                console.error('Map initialization failed:', error);
+                document.getElementById('map').innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: var(--card-bg); color: var(--text-primary); border-radius: 22px;">
+                        <div style="text-align: center; padding: 40px;">
+                            <i class="fas fa-map-marked-alt" style="font-size: 3rem; margin-bottom: 20px; color: var(--neon-blue);"></i>
+                            <h3 style="margin-bottom: 10px;">Map Loading Failed</h3>
+                            <p style="color: var(--text-secondary);">Please check your internet connection and refresh the page.</p>
+                        </div>
+                    </div>
+                `;
+            }
         }
 
         function addLombokMarkers(destinations) {
@@ -2761,10 +2943,12 @@
                     });
                     
                     const [lat, lng] = location.split(',').map(coord => parseFloat(coord));
-                    map.flyTo([lat, lng], 13, {
-                        duration: 1.5,
-                        easeLinearity: 0.25
-                    });
+                    if (map) {
+                        map.flyTo([lat, lng], 13, {
+                            duration: 1.5,
+                            easeLinearity: 0.25
+                        });
+                    }
                     
                     // Show notification
                     showNotification(`📍 ${name} selected! Set your location and click "Get Directions"`);
@@ -2780,14 +2964,24 @@
             detectBtn.innerHTML = '<div class="loading"></div>';
             detectBtn.disabled = true;
             
+            // Check if geolocation is supported
             if (!navigator.geolocation) {
-                locationInput.value = '❌ Geolocation not supported';
+                locationInput.value = '❌ Geolocation not supported by your browser';
                 resetDetectButton();
+                showNotification('🌍 Please enable location services or enter manually', 'error');
                 return;
             }
             
+            // Set timeout untuk geolocation
+            const geoOptions = {
+                enableHighAccuracy: true,
+                timeout: 10000, // 10 seconds
+                maximumAge: 60000 // 1 minute cache
+            };
+            
             navigator.geolocation.getCurrentPosition(
                 function(position) {
+                    // SUCCESS
                     userLocation = [
                         position.coords.latitude,
                         position.coords.longitude
@@ -2811,34 +3005,57 @@
                         })
                     }).addTo(map).bindPopup('Your Location 🎯');
                     
-                    // Get address name (simplified)
-                    locationInput.value = `📍 Your Location (${userLocation[0].toFixed(4)}, ${userLocation[1].toFixed(4)})`;
+                    // Get approximate address (simplified)
+                    getLocationName(userLocation[0], userLocation[1])
+                        .then(locationName => {
+                            locationInput.value = `📍 ${locationName}`;
+                        })
+                        .catch(() => {
+                            locationInput.value = `📍 Your Location (${userLocation[0].toFixed(4)}, ${userLocation[1].toFixed(4)})`;
+                        });
                     
                     // Center map on user location
-                    map.flyTo(userLocation, 13, {
-                        duration: 1.5,
-                        easeLinearity: 0.25
-                    });
+                    if (map) {
+                        map.flyTo(userLocation, 13, {
+                            duration: 1.5,
+                            easeLinearity: 0.25
+                        });
+                    }
                     
                     resetDetectButton();
                     showNotification('✅ Location detected successfully!');
                 },
                 function(error) {
+                    // ERROR handling yang lebih detail
                     let errorMessage = '❌ Failed to detect location';
+                    let notificationMsg = '📍 Please enter your location manually';
+                    
                     switch(error.code) {
                         case error.PERMISSION_DENIED:
-                            errorMessage = '🚫 Location access denied';
+                            errorMessage = '🚫 Location access denied by user';
+                            notificationMsg = '📍 Please allow location access or enter manually';
                             break;
                         case error.POSITION_UNAVAILABLE:
-                            errorMessage = '📡 Location unavailable';
+                            errorMessage = '📡 Location information unavailable';
+                            notificationMsg = '📍 Location services unavailable';
                             break;
                         case error.TIMEOUT:
                             errorMessage = '⏰ Location request timeout';
+                            notificationMsg = '📍 Location detection timed out';
+                            break;
+                        default:
+                            errorMessage = '❌ Unknown location error';
                             break;
                     }
+                    
                     locationInput.value = errorMessage;
                     resetDetectButton();
-                }
+                    showNotification(notificationMsg, 'error');
+                    
+                    // Fallback: show manual input option
+                    showManualLocationOption();
+                },
+                geoOptions
             );
         }
 
@@ -2846,6 +3063,25 @@
             const detectBtn = document.getElementById('detect-location');
             detectBtn.innerHTML = '<i class="fas fa-crosshairs"></i><span data-translate="map_detect">Detect My Location</span>';
             detectBtn.disabled = false;
+        }
+
+        function showManualLocationOption() {
+            const locationInput = document.getElementById('start-location');
+            locationInput.readOnly = false;
+            locationInput.placeholder = 'Enter your location manually...';
+            locationInput.style.cursor = 'text';
+        }
+
+        function getLocationName(lat, lng) {
+            // Simplified reverse geocoding
+            return fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                .then(response => response.json())
+                .then(data => {
+                    return data.display_name.split(',')[0] || 'Your Location';
+                })
+                .catch(() => {
+                    return `Location (${lat.toFixed(2)}, ${lng.toFixed(2)})`;
+                });
         }
 
         function calculateRoute() {
@@ -2868,16 +3104,20 @@
             ];
             
             // Show routing control
-            routingControl.getContainer().style.display = 'block';
-            
-            // Set waypoints
-            routingControl.setWaypoints([
-                L.latLng(userLocation[0], userLocation[1]),
-                L.latLng(destination[0], destination[1])
-            ]);
-            
-            // Fit map to route
-            map.fitBounds(routingControl.getWaypoints(), { padding: [50, 50] });
+            if (routingControl && routingControl.getContainer) {
+                routingControl.getContainer().style.display = 'block';
+                
+                // Set waypoints
+                routingControl.setWaypoints([
+                    L.latLng(userLocation[0], userLocation[1]),
+                    L.latLng(destination[0], destination[1])
+                ]);
+                
+                // Fit map to route
+                if (map) {
+                    map.fitBounds(routingControl.getWaypoints(), { padding: [50, 50] });
+                }
+            }
             
             // Calculate distance and time based on transport mode
             calculateDistanceAndTime(userLocation, destination, currentTransportMode);
@@ -2980,7 +3220,7 @@
         }
 
         function clearRoute() {
-            if (routingControl) {
+            if (routingControl && routingControl.getContainer) {
                 routingControl.getContainer().style.display = 'none';
                 routingControl.setWaypoints([]);
             }
