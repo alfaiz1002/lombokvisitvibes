@@ -138,29 +138,381 @@ function initializeTheme() {
 
 // ==================== LANGUAGE SYSTEM ====================
 function initializeLanguage() {
+    console.log('🌐 Initializing language system...');
     const languageSelect = document.getElementById('languageSelect');
+    
+    if (!languageSelect) {
+        console.error('❌ Language select element not found!');
+        return;
+    }
+    
     const savedLanguage = localStorage.getItem('lombok-language') || 'id';
     languageSelect.value = savedLanguage;
     updateLanguage(savedLanguage);
     
     languageSelect.addEventListener('change', function() {
         const selectedLanguage = this.value;
+        console.log(`🌐 Language changed to: ${selectedLanguage}`);
         localStorage.setItem('lombok-language', selectedLanguage);
         updateLanguage(selectedLanguage);
     });
+    
+    console.log(`🌐 Language initialized: ${savedLanguage}`);
 }
 
 function updateLanguage(language) {
+    console.log(`🌐 Updating UI to language: ${language}`);
+    
+    // Default ke Indonesian jika bahasa tidak ditemukan
+    if (!translations[language]) {
+        console.warn(`⚠️ Language "${language}" not found, defaulting to Indonesian`);
+        language = 'id';
+    }
+    
+    const trans = translations[language];
+    
+    // Update semua elemen dengan data-translate
     document.querySelectorAll('[data-translate]').forEach(element => {
         const key = element.getAttribute('data-translate');
-        if (translations[language] && translations[language][key]) {
+        if (trans && trans[key]) {
             if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
-                element.placeholder = translations[language][key];
+                element.placeholder = trans[key];
+            } else if (element.tagName === 'SELECT') {
+                // Untuk select, update placeholder option pertama
+                const firstOption = element.querySelector('option[value=""]');
+                if (firstOption) {
+                    firstOption.textContent = trans[key];
+                }
             } else {
-                element.textContent = translations[language][key];
+                element.textContent = trans[key];
             }
         }
     });
+    
+    // Update semua teks yang TIDAK punya data-translate
+    updateAllDynamicContent(language);
+}
+
+function updateAllDynamicContent(language) {
+    const trans = translations[language];
+    if (!trans) return;
+    
+    // 1. UPDATE TOMBOL-TOMBOL UTAMA
+    updateButtons(language);
+    
+    // 2. UPDATE FILTER DROPDOWN
+    updateFilters(language);
+    
+    // 3. UPDATE STATISTICS LABELS
+    updateStatisticsLabels(language);
+    
+    // 4. UPDATE LEGENDA TRAFFIC
+    updateLegends(language);
+    
+    // 5. UPDATE KONTROL MAP
+    updateMapControls(language);
+    
+    // 6. UPDATE KATEGORI
+    updateCategories(language);
+    
+    // 7. UPDATE JUDUL DAN SUBTITLE
+    updateTitlesAndSubtitles(language);
+}
+
+function updateButtons(language) {
+    const trans = translations[language];
+    
+    // Refresh button
+    const refreshBtn = document.getElementById('refresh-stats');
+    if (refreshBtn) {
+        const refreshSpan = refreshBtn.querySelector('span');
+        if (refreshSpan && !refreshSpan.hasAttribute('data-translate')) {
+            refreshSpan.textContent = trans.btn_refresh || 'Refresh Data';
+        }
+    }
+    
+    // Get directions button
+    const directionsBtn = document.getElementById('calculate-route');
+    if (directionsBtn) {
+        const directionsSpan = directionsBtn.querySelector('span');
+        if (directionsSpan && !directionsSpan.hasAttribute('data-translate')) {
+            directionsSpan.textContent = trans.btn_get_directions || 'Get Directions';
+        }
+    }
+    
+    // Clear button
+    const clearBtn = document.getElementById('clear-route');
+    if (clearBtn) {
+        const clearSpan = clearBtn.querySelector('span');
+        if (clearSpan && !clearSpan.hasAttribute('data-translate')) {
+            clearSpan.textContent = trans.btn_clear || 'Clear';
+        }
+    }
+    
+    // Detect location button
+    const detectBtn = document.getElementById('detect-location');
+    if (detectBtn) {
+        const detectSpan = detectBtn.querySelector('span');
+        if (detectSpan && !detectSpan.hasAttribute('data-translate')) {
+            detectSpan.textContent = trans.btn_detect_location || 'Detect My Location';
+        }
+    }
+    
+    // View on map buttons di destination cards
+    document.querySelectorAll('.view-on-map').forEach(btn => {
+        const span = btn.querySelector('span');
+        if (span && !span.hasAttribute('data-translate')) {
+            span.textContent = trans.btn_view_map || 'View on Map';
+        }
+    });
+    
+    // View on map buttons di stats cards
+    document.querySelectorAll('.view-on-map-btn').forEach(btn => {
+        if (!btn.hasAttribute('data-translate')) {
+            btn.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${trans.btn_view_map || 'View on Map'}`;
+        }
+    });
+    
+    // Check-in buttons di stats cards
+    document.querySelectorAll('.record-visit-btn').forEach(btn => {
+        if (!btn.hasAttribute('data-translate')) {
+            btn.innerHTML = `<i class="fas fa-user-plus"></i> ${trans.btn_check_in || 'Check-in'}`;
+        }
+    });
+    
+    // Submit review button
+    const submitReviewBtn = document.getElementById('submit-review');
+    if (submitReviewBtn) {
+        const submitSpan = submitReviewBtn.querySelector('span');
+        if (submitSpan && !submitSpan.hasAttribute('data-translate')) {
+            submitSpan.textContent = trans.reviews_submit || 'Share Your Experience';
+        }
+    }
+}
+
+function updateFilters(language) {
+    const trans = translations[language];
+    
+    // Region filter dropdown
+    const regionFilter = document.getElementById('region-filter');
+    if (regionFilter) {
+        const regionOptions = {
+            'all': trans.region_all || 'All Regions',
+            'lombok-tengah': trans.region_central || 'Central Lombok',
+            'lombok-barat': trans.region_west || 'West Lombok',
+            'lombok-timur': trans.region_east || 'East Lombok',
+            'lombok-utara': trans.region_north || 'North Lombok',
+            'kota-mataram': trans.region_mataram || 'Mataram City'
+        };
+        
+        Array.from(regionFilter.options).forEach(option => {
+            if (regionOptions[option.value]) {
+                option.textContent = regionOptions[option.value];
+            }
+        });
+    }
+    
+    // Traffic filter dropdown
+    const trafficFilter = document.getElementById('traffic-filter');
+    if (trafficFilter) {
+        const trafficOptions = {
+            'all': trans.traffic_all || 'All Levels',
+            'low': trans.traffic_low || 'Low',
+            'medium': trans.traffic_medium || 'Medium',
+            'high': trans.traffic_high || 'High',
+            'very-high': trans.traffic_very_high || 'Very High'
+        };
+        
+        Array.from(trafficFilter.options).forEach(option => {
+            if (trafficOptions[option.value]) {
+                option.textContent = trafficOptions[option.value];
+            }
+        });
+    }
+}
+
+function updateStatisticsLabels(language) {
+    const trans = translations[language];
+    
+    // Update label statistik di dashboard
+    const statsLabels = [
+        { selector: '.stat-card:nth-child(1) .stat-label', key: 'stat_total_visitors' },
+        { selector: '.stat-card:nth-child(2) .stat-label', key: 'stat_avg_traffic' },
+        { selector: '.stat-card:nth-child(3) .stat-label', key: 'stat_most_crowded' },
+        { selector: '.stat-card:nth-child(4) .stat-label', key: 'stat_least_crowded' }
+    ];
+    
+    statsLabels.forEach(label => {
+        const element = document.querySelector(label.selector);
+        if (element && !element.hasAttribute('data-translate')) {
+            element.textContent = trans[label.key] || element.textContent;
+        }
+    });
+}
+
+function updateLegends(language) {
+    const trans = translations[language];
+    
+    // Update judul legenda
+    const legendTitle = document.querySelector('.traffic-legend h4');
+    if (legendTitle && !legendTitle.hasAttribute('data-translate')) {
+        legendTitle.innerHTML = `<i class="fas fa-info-circle"></i> ${trans.legend_title || 'Traffic Legend'}`;
+    }
+    
+    // Update item legenda
+    const legendItems = document.querySelectorAll('.legend-item span');
+    if (legendItems.length >= 4) {
+        const legendTexts = [
+            trans.legend_low || 'Low (0-20)',
+            trans.legend_medium || 'Medium (20-50)',
+            trans.legend_high || 'High (50-100)',
+            trans.legend_very_high || 'Very High (100+)'
+        ];
+        
+        legendItems.forEach((span, index) => {
+            if (!span.hasAttribute('data-translate') && legendTexts[index]) {
+                span.textContent = legendTexts[index];
+            }
+        });
+    }
+}
+
+function updateMapControls(language) {
+    const trans = translations[language];
+    
+    // Judul form rute
+    const routeTitle = document.querySelector('.route-form h4');
+    if (routeTitle && !routeTitle.hasAttribute('data-translate')) {
+        routeTitle.innerHTML = `<i class="fas fa-route"></i> ${trans.map_route_title || 'Plan Your Route'}`;
+    }
+    
+    // Label input
+    const startLabel = document.querySelector('label[for="start-location"]');
+    if (startLabel && !startLabel.hasAttribute('data-translate')) {
+        startLabel.innerHTML = `<i class="fas fa-location-arrow"></i> ${trans.map_start_location || 'Start Location'}`;
+    }
+    
+    const destLabel = document.querySelector('label[for="destination"]');
+    if (destLabel && !destLabel.hasAttribute('data-translate')) {
+        destLabel.innerHTML = `<i class="fas fa-flag-checkered"></i> ${trans.map_destination || 'Destination'}`;
+    }
+    
+    // Placeholder input
+    const startInput = document.getElementById('start-location');
+    if (startInput && !startInput.hasAttribute('data-translate')) {
+        startInput.placeholder = trans.map_start_location || 'Start Location';
+    }
+    
+    const destSelect = document.getElementById('destination');
+    if (destSelect && destSelect.options[0] && destSelect.options[0].value === '') {
+        destSelect.options[0].textContent = trans.map_choose_destination || 'Choose destination...';
+    }
+    
+    // Update traffic info di dashboard
+    const trafficTitle = document.querySelector('.dashboard-header h4');
+    if (trafficTitle && !trafficTitle.hasAttribute('data-translate')) {
+        trafficTitle.innerHTML = `<i class="fas fa-traffic-light"></i> ${trans.map_traffic_info || 'Live Traffic Info'}`;
+    }
+    
+    const lowTrafficLabel = document.querySelector('.dashboard-stats .stat-card:nth-child(1) .stat-label');
+    if (lowTrafficLabel && !lowTrafficLabel.hasAttribute('data-translate')) {
+        lowTrafficLabel.textContent = trans.map_low_traffic || 'Low Traffic';
+    }
+    
+    const highTrafficLabel = document.querySelector('.dashboard-stats .stat-card:nth-child(2) .stat-label');
+    if (highTrafficLabel && !highTrafficLabel.hasAttribute('data-translate')) {
+        highTrafficLabel.textContent = trans.map_high_traffic || 'High Traffic';
+    }
+}
+
+function updateCategories(language) {
+    const trans = translations[language];
+    
+    // Update category buttons
+    const categoryBtns = document.querySelectorAll('.category-btn');
+    const categoryTranslations = {
+        'all': trans.category_all || 'All Destinations',
+        'lombok-tengah': trans.category_lombok_tengah || 'Central Lombok',
+        'lombok-barat': trans.category_lombok_barat || 'West Lombok',
+        'lombok-timur': trans.category_lombok_timur || 'East Lombok',
+        'lombok-utara': trans.category_lombok_utara || 'North Lombok',
+        'kota-mataram': trans.category_kota_mataram || 'Mataram City'
+    };
+    
+    categoryBtns.forEach(btn => {
+        const category = btn.getAttribute('data-category');
+        if (category && categoryTranslations[category]) {
+            const span = btn.querySelector('span');
+            if (span && !span.hasAttribute('data-translate')) {
+                span.textContent = categoryTranslations[category];
+            }
+        }
+    });
+}
+
+function updateTitlesAndSubtitles(language) {
+    const trans = translations[language];
+    
+    // Update hero section
+    const heroTitle = document.querySelector('.hero h1');
+    const heroSubtitle = document.querySelector('.hero p');
+    const heroButton = document.querySelector('.hero .btn span');
+    
+    if (heroTitle && !heroTitle.hasAttribute('data-translate')) {
+        heroTitle.textContent = trans.hero_title || 'Lombok Live Dashboard';
+    }
+    if (heroSubtitle && !heroSubtitle.hasAttribute('data-translate')) {
+        heroSubtitle.textContent = trans.hero_subtitle || 'Real-time tourism statistics';
+    }
+    if (heroButton && !heroButton.hasAttribute('data-translate')) {
+        heroButton.textContent = trans.hero_explore || 'Explore Destinations';
+    }
+    
+    // Update section titles berdasarkan ID section
+    document.querySelectorAll('.section-title h2').forEach(title => {
+        const parentSection = title.closest('section');
+        if (parentSection && !title.hasAttribute('data-translate')) {
+            const sectionId = parentSection.id;
+            
+            if (sectionId === 'features') {
+                title.textContent = trans.features_title || 'Real-Time Features';
+            } else if (sectionId === 'destinations') {
+                title.textContent = trans.destinations_title || 'Featured Destinations';
+            } else if (sectionId === 'statistics') {
+                title.textContent = trans.map_title || 'Live Traffic Heatmap';
+            } else if (sectionId === 'map-section') {
+                title.textContent = trans.map_title || 'Live Traffic Heatmap';
+            } else if (sectionId === 'reviews-section') {
+                title.textContent = trans.reviews_title || 'Traveler Experiences';
+            }
+        }
+    });
+    
+    // Update section subtitles
+    document.querySelectorAll('.section-title p').forEach(subtitle => {
+        const parentSection = subtitle.closest('section');
+        if (parentSection && !subtitle.hasAttribute('data-translate')) {
+            const sectionId = parentSection.id;
+            
+            if (sectionId === 'features') {
+                subtitle.textContent = trans.features_subtitle || 'Smart monitoring system';
+            } else if (sectionId === 'destinations') {
+                subtitle.textContent = trans.destinations_subtitle || 'Explore amazing destinations';
+            } else if (sectionId === 'statistics') {
+                subtitle.textContent = trans.map_subtitle || 'Real-time crowd visualization';
+            } else if (sectionId === 'map-section') {
+                subtitle.textContent = trans.map_subtitle || 'Real-time crowd visualization';
+            } else if (sectionId === 'reviews-section') {
+                subtitle.textContent = trans.reviews_subtitle || 'See traveler experiences';
+            }
+        }
+    });
+    
+    // Update search placeholder
+    const searchInput = document.getElementById('destination-search');
+    if (searchInput && !searchInput.hasAttribute('data-translate')) {
+        searchInput.placeholder = trans.search_placeholder || '🔍 Search destinations...';
+    }
 }
 
 // ==================== NAVIGATION ====================
@@ -1298,9 +1650,9 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Lombok Live Dashboard Initializing...');
     
     try {
-        // Initialize semua sistem
+        // Initialize semua sistem - URUTAN PENTING!
         initializeTheme();
-        initializeLanguage();
+        initializeLanguage();  // HARUS dipanggil SETELAH initializeTheme()
         initializeNavigation();
         initializeParticles();
         initializeDestinations();
@@ -1325,10 +1677,22 @@ document.addEventListener('DOMContentLoaded', function() {
         
         console.log('✅ Lombok Live Dashboard Initialized Successfully!');
         
-        // Show welcome notification
+        // Show welcome notification dalam bahasa yang dipilih
         setTimeout(() => {
-            showNotification('🌴 Welcome to Lombok Live Dashboard! Explore 170+ destinations in real-time.');
-        }, 1500);
+            const savedLang = localStorage.getItem('lombok-language') || 'id';
+            const welcomeMessages = {
+                id: '🌴 Selamat datang di Lombok Live Dashboard! Jelajahi 170+ destinasi secara real-time.',
+                en: '🌴 Welcome to Lombok Live Dashboard! Explore 170+ destinations in real-time.',
+                fr: '🌴 Bienvenue sur le Tableau de Bord Live Lombok ! Explorez 170+ destinations en temps réel.',
+                de: '🌴 Willkommen beim Lombok Live-Dashboard! Erkunden Sie 170+ Ziele in Echtzeit.',
+                ja: '🌴 ロンボクライブダッシュボードへようこそ！170以上の目的地をリアルタイムで探索しましょう。',
+                ko: '🌴 롬복 실시간 대시보드에 오신 것을 환영합니다! 170개 이상의 목적지를 실시간으로 탐험하세요。',
+                ru: '🌴 Добро пожаловать в Живую Панель Ломбока! Исследуйте 170+ направлений в реальном времени.'
+            };
+            
+            const message = welcomeMessages[savedLang] || welcomeMessages['en'];
+            showNotification(message);
+        }, 2000);
         
     } catch (error) {
         console.error('Initialization error:', error);
