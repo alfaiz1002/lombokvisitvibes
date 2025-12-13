@@ -905,4 +905,4 @@ if (typeof module !== 'undefined' && module.exports) {
         calculateTrafficLevel,
         mockAPI
     };
-             }
+}
