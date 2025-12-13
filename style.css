@@ -1669,3 +1669,39 @@ footer {
         padding: 15px;
     }
 }
+
+/* Language Selector Responsive */
+@media (max-width: 768px) {
+    .language-selector {
+        position: fixed;
+        top: 90px;
+        right: 15px;
+        padding: 10px 15px;
+        z-index: 1002;
+        max-width: 180px;
+    }
+    
+    .language-selector select {
+        font-size: 0.85rem;
+        max-width: 140px;
+        padding: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .language-selector {
+        top: 100px;
+        right: 10px;
+        padding: 8px 12px;
+        max-width: 160px;
+    }
+    
+    .language-selector select {
+        font-size: 0.8rem;
+        max-width: 120px;
+    }
+    
+    .language-selector i {
+        font-size: 0.9rem;
+    }
+}
