@@ -1,4 +1,4 @@
- // ==================== DATA 170 TITIK WISATA LOMBOK DENGAN FOTO ASLI ====================
+// ========= // ==================== DATA 170 TITIK WISATA LOMBOK DENGAN FOTO ASLI ====================
         let lombokDestinations = [
             // Lombok Tengah (1-51) 
             { id: 1, name: "Pantai Kuta Mandalika", lat: -8.893797615746463, lng: 116.28338487671442, category: "beach", region: "lombok-tengah", price: "Rp10.000", hours: "06.00 – 18.00 WITA", image: "https://i.ibb.co.com/hFWzWx4W/pantaikutalombok.png" },
@@ -182,6 +182,7 @@
             
 
         ];
+
 
 // ==================== MULTI-LANGUAGE SUPPORT ====================
 const translations = {
@@ -904,4 +905,4 @@ if (typeof module !== 'undefined' && module.exports) {
         calculateTrafficLevel,
         mockAPI
     };
-}
+             }
