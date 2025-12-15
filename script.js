@@ -3,15 +3,20 @@ let map, routingControl, userLocation, userMarker;
 let trafficCircles = [];
 let currentTransportMode = 'car';
 let statsUpdateInterval;
+let currentMapType = 'street'; // 'street', 'satellite'
+let satelliteLayer, streetLayer;
 
 // ==================== HELPER FUNCTIONS ====================
 function getRegionName(region) {
+    const savedLang = localStorage.getItem('lombok-language') || 'id';
+    const trans = translations[savedLang];
+    
     const regionNames = {
-        'lombok-tengah': 'Central Lombok',
-        'lombok-barat': 'West Lombok', 
-        'lombok-timur': 'East Lombok',
-        'lombok-utara': 'North Lombok',
-        'kota-mataram': 'Mataram City'
+        'lombok-tengah': trans.region_central || 'Central Lombok',
+        'lombok-barat': trans.region_west || 'West Lombok', 
+        'lombok-timur': trans.region_east || 'East Lombok',
+        'lombok-utara': trans.region_north || 'North Lombok',
+        'kota-mataram': trans.region_mataram || 'Mataram City'
     };
     return regionNames[region] || region;
 }
@@ -146,6 +151,12 @@ function initializeLanguage() {
         return;
     }
     
+    // Check if translations exist
+    if (typeof translations === 'undefined') {
+        console.error('❌ Translations object not found!');
+        return;
+    }
+    
     const savedLanguage = localStorage.getItem('lombok-language') || 'id';
     languageSelect.value = savedLanguage;
     updateLanguage(savedLanguage);
@@ -164,17 +175,22 @@ function updateLanguage(language) {
     console.log(`🌐 Updating UI to language: ${language}`);
     
     // Default ke Indonesian jika bahasa tidak ditemukan
-    if (!translations[language]) {
-        console.warn(`⚠️ Language "${language}" not found, defaulting to Indonesian`);
+    if (!translations || !translations[language]) {
+        console.warn(`⚠️ Language "${language}" not found or translations not loaded, defaulting to Indonesian`);
         language = 'id';
     }
     
     const trans = translations[language];
     
-    // Update semua elemen dengan data-translate
+    if (!trans) {
+        console.error('❌ No translations available!');
+        return;
+    }
+    
+    // 1. Update semua elemen dengan data-translate
     document.querySelectorAll('[data-translate]').forEach(element => {
         const key = element.getAttribute('data-translate');
-        if (trans && trans[key]) {
+        if (trans[key]) {
             if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
                 element.placeholder = trans[key];
             } else if (element.tagName === 'SELECT') {
@@ -189,8 +205,17 @@ function updateLanguage(language) {
         }
     });
     
-    // Update semua teks yang TIDAK punya data-translate
+    // 2. Update semua text yang TIDAK punya data-translate
     updateAllDynamicContent(language);
+    
+    // 3. Update price text di destination cards
+    updatePriceText(language);
+    
+    // 4. Update destination cards
+    updateDestinationCards(language);
+    
+    // 5. Update statistics cards
+    updateStatisticsCards(language);
 }
 
 function updateAllDynamicContent(language) {
@@ -217,10 +242,14 @@ function updateAllDynamicContent(language) {
     
     // 7. UPDATE JUDUL DAN SUBTITLE
     updateTitlesAndSubtitles(language);
+    
+    // 8. UPDATE SECTION TITLES
+    updateSectionTitles(language);
 }
 
 function updateButtons(language) {
     const trans = translations[language];
+    if (!trans) return;
     
     // Refresh button
     const refreshBtn = document.getElementById('refresh-stats');
@@ -280,18 +309,19 @@ function updateButtons(language) {
         }
     });
     
-    // Submit review button
-    const submitReviewBtn = document.getElementById('submit-review');
-    if (submitReviewBtn) {
-        const submitSpan = submitReviewBtn.querySelector('span');
-        if (submitSpan && !submitSpan.hasAttribute('data-translate')) {
-            submitSpan.textContent = trans.reviews_submit || 'Share Your Experience';
+    // Satellite toggle button
+    const satelliteToggle = document.getElementById('satellite-toggle');
+    if (satelliteToggle) {
+        const satelliteSpan = satelliteToggle.querySelector('span');
+        if (satelliteSpan && !satelliteSpan.hasAttribute('data-translate')) {
+            satelliteSpan.textContent = currentMapType === 'satellite' ? 'Street Map' : 'Satellite';
         }
     }
 }
 
 function updateFilters(language) {
     const trans = translations[language];
+    if (!trans) return;
     
     // Region filter dropdown
     const regionFilter = document.getElementById('region-filter');
@@ -329,10 +359,35 @@ function updateFilters(language) {
             }
         });
     }
+    
+    // Category filter buttons
+    const categoryFilter = document.getElementById('categoryFilter');
+    if (categoryFilter) {
+        const categoryButtons = categoryFilter.querySelectorAll('.category-btn');
+        const categoryOptions = {
+            'all': trans.category_all || 'All Destinations',
+            'lombok-tengah': trans.category_lombok_tengah || 'Central Lombok',
+            'lombok-barat': trans.category_lombok_barat || 'West Lombok',
+            'lombok-timur': trans.category_lombok_timur || 'East Lombok',
+            'lombok-utara': trans.category_lombok_utara || 'North Lombok',
+            'kota-mataram': trans.category_kota_mataram || 'Mataram City'
+        };
+        
+        categoryButtons.forEach(button => {
+            const category = button.getAttribute('data-category');
+            if (category && categoryOptions[category]) {
+                const span = button.querySelector('span');
+                if (span && !span.hasAttribute('data-translate')) {
+                    span.textContent = categoryOptions[category];
+                }
+            }
+        });
+    }
 }
 
 function updateStatisticsLabels(language) {
     const trans = translations[language];
+    if (!trans) return;
     
     // Update label statistik di dashboard
     const statsLabels = [
@@ -348,10 +403,18 @@ function updateStatisticsLabels(language) {
             element.textContent = trans[label.key] || element.textContent;
         }
     });
+    
+    // Update labels in statistics grid
+    document.querySelectorAll('.stats-card .stat-label').forEach(element => {
+        if (!element.hasAttribute('data-translate')) {
+            element.textContent = trans.current_visitors || 'Current Visitors';
+        }
+    });
 }
 
 function updateLegends(language) {
     const trans = translations[language];
+    if (!trans) return;
     
     // Update judul legenda
     const legendTitle = document.querySelector('.traffic-legend h4');
@@ -379,6 +442,7 @@ function updateLegends(language) {
 
 function updateMapControls(language) {
     const trans = translations[language];
+    if (!trans) return;
     
     // Judul form rute
     const routeTitle = document.querySelector('.route-form h4');
@@ -427,6 +491,7 @@ function updateMapControls(language) {
 
 function updateCategories(language) {
     const trans = translations[language];
+    if (!trans) return;
     
     // Update category buttons
     const categoryBtns = document.querySelectorAll('.category-btn');
@@ -448,10 +513,37 @@ function updateCategories(language) {
             }
         }
     });
+    
+    // Update category badges in destination cards
+    document.querySelectorAll('.category-badge').forEach(badge => {
+        const categoryText = badge.textContent.toLowerCase();
+        let translatedCategory = '';
+        
+        if (categoryText.includes('beach') || categoryText.includes('pantai')) {
+            translatedCategory = trans.category_beach || 'Beach';
+        } else if (categoryText.includes('mountain') || categoryText.includes('gunung') || categoryText.includes('bukit')) {
+            translatedCategory = trans.category_mountain || 'Mountain';
+        } else if (categoryText.includes('waterfall') || categoryText.includes('air terjun')) {
+            translatedCategory = trans.category_waterfall || 'Waterfall';
+        } else if (categoryText.includes('nature') || categoryText.includes('alam')) {
+            translatedCategory = trans.category_nature || 'Nature';
+        } else if (categoryText.includes('culture') || categoryText.includes('budaya')) {
+            translatedCategory = trans.category_culture || 'Culture';
+        } else if (categoryText.includes('culinary') || categoryText.includes('kuliner')) {
+            translatedCategory = trans.category_culinary || 'Culinary';
+        } else {
+            translatedCategory = badge.textContent;
+        }
+        
+        if (!badge.hasAttribute('data-translate')) {
+            badge.textContent = translatedCategory;
+        }
+    });
 }
 
 function updateTitlesAndSubtitles(language) {
     const trans = translations[language];
+    if (!trans) return;
     
     // Update hero section
     const heroTitle = document.querySelector('.hero h1');
@@ -467,58 +559,133 @@ function updateTitlesAndSubtitles(language) {
     if (heroButton && !heroButton.hasAttribute('data-translate')) {
         heroButton.textContent = trans.hero_explore || 'Explore Destinations';
     }
+}
+
+function updateSectionTitles(language) {
+    const trans = translations[language];
+    if (!trans) return;
     
-    // Update section titles berdasarkan ID section
+    // Update all section titles
     document.querySelectorAll('.section-title h2').forEach(title => {
         const parentSection = title.closest('section');
         if (parentSection && !title.hasAttribute('data-translate')) {
             const sectionId = parentSection.id;
             
-            if (sectionId === 'features') {
-                title.textContent = trans.features_title || 'Real-Time Features';
-            } else if (sectionId === 'destinations') {
-                title.textContent = trans.destinations_title || 'Featured Destinations';
-            } else if (sectionId === 'statistics') {
-                title.textContent = trans.map_title || 'Live Traffic Heatmap';
-            } else if (sectionId === 'map-section') {
-                title.textContent = trans.map_title || 'Live Traffic Heatmap';
-            } else if (sectionId === 'reviews-section') {
-                title.textContent = trans.reviews_title || 'Traveler Experiences';
+            switch(sectionId) {
+                case 'features':
+                    title.textContent = trans.features_title || 'Real-Time Features';
+                    break;
+                case 'destinations':
+                    title.textContent = trans.destinations_title || 'Featured Destinations';
+                    break;
+                case 'statistics':
+                    title.textContent = trans.statistics_title || 'Live Statistics';
+                    break;
+                case 'map-section':
+                    title.textContent = trans.map_title || 'Live Traffic Heatmap';
+                    break;
+                case 'reviews':
+                    title.textContent = trans.reviews_title || 'Traveler Experiences';
+                    break;
             }
         }
     });
     
-    // Update section subtitles
+    // Update all section subtitles
     document.querySelectorAll('.section-title p').forEach(subtitle => {
         const parentSection = subtitle.closest('section');
         if (parentSection && !subtitle.hasAttribute('data-translate')) {
             const sectionId = parentSection.id;
             
-            if (sectionId === 'features') {
-                subtitle.textContent = trans.features_subtitle || 'Smart monitoring system';
-            } else if (sectionId === 'destinations') {
-                subtitle.textContent = trans.destinations_subtitle || 'Explore amazing destinations';
-            } else if (sectionId === 'statistics') {
-                subtitle.textContent = trans.map_subtitle || 'Real-time crowd visualization';
-            } else if (sectionId === 'map-section') {
-                subtitle.textContent = trans.map_subtitle || 'Real-time crowd visualization';
-            } else if (sectionId === 'reviews-section') {
-                subtitle.textContent = trans.reviews_subtitle || 'See traveler experiences';
+            switch(sectionId) {
+                case 'features':
+                    subtitle.textContent = trans.features_subtitle || 'Smart monitoring system';
+                    break;
+                case 'destinations':
+                    subtitle.textContent = trans.destinations_subtitle || 'Explore amazing destinations';
+                    break;
+                case 'statistics':
+                    subtitle.textContent = trans.statistics_subtitle || 'Monitor crowd levels';
+                    break;
+                case 'map-section':
+                    subtitle.textContent = trans.map_subtitle || 'Real-time crowd visualization';
+                    break;
+                case 'reviews':
+                    subtitle.textContent = trans.reviews_subtitle || 'See traveler experiences';
+                    break;
             }
         }
     });
+}
+
+function updatePriceText(language) {
+    const trans = translations[language];
+    if (!trans) return;
     
-    // Update search placeholder
-    const searchInput = document.getElementById('destination-search');
-    if (searchInput && !searchInput.hasAttribute('data-translate')) {
-        searchInput.placeholder = trans.search_placeholder || '🔍 Search destinations...';
-    }
+    // Update price text di seluruh aplikasi
+    document.querySelectorAll('.price, .price-label, .cost').forEach(element => {
+        const currentText = element.textContent.toLowerCase();
+        if (currentText.includes('gratis') || currentText.includes('free')) {
+            element.textContent = trans.price_free || 'Free';
+        } else if (currentText.includes('donasi') || currentText.includes('donation')) {
+            element.textContent = trans.price_donation || 'Donation';
+        } else if (currentText.includes('bervariasi') || currentText.includes('variable')) {
+            element.textContent = trans.price_variable || 'Variable';
+        }
+    });
+    
+    // Update hours text
+    document.querySelectorAll('.hours, .open-hours, .detail-item span').forEach(element => {
+        const currentText = element.textContent.toLowerCase();
+        if (currentText.includes('24 jam') || currentText.includes('24 hours') || currentText.includes('24 jam wita')) {
+            element.textContent = trans.hours_24 || '24 hours';
+        }
+    });
+}
+
+function updateDestinationCards(language) {
+    const trans = translations[language];
+    if (!trans) return;
+    
+    document.querySelectorAll('.destination-card').forEach(card => {
+        // Update detail items
+        const detailItems = card.querySelectorAll('.detail-item span');
+        detailItems.forEach(item => {
+            const itemText = item.textContent.toLowerCase();
+            if (itemText.includes('capacity') || itemText.includes('kapasitas')) {
+                item.textContent = trans.capacity || 'Capacity';
+            } else if (itemText.includes('last updated') || itemText.includes('terakhir diperbarui')) {
+                item.textContent = trans.last_updated || 'Last Updated';
+            }
+        });
+    });
+}
+
+function updateStatisticsCards(language) {
+    const trans = translations[language];
+    if (!trans) return;
+    
+    // Update stat cards
+    document.querySelectorAll('.stats-card').forEach(card => {
+        // Update labels
+        const labels = card.querySelectorAll('span');
+        labels.forEach(label => {
+            const labelText = label.textContent.toLowerCase();
+            if (labelText.includes('capacity') || labelText.includes('kapasitas')) {
+                label.textContent = trans.capacity || 'Capacity';
+            } else if (labelText.includes('last updated') || labelText.includes('terakhir diperbarui')) {
+                label.textContent = trans.last_updated || 'Last Updated';
+            }
+        });
+    });
 }
 
 // ==================== NAVIGATION ====================
 function initializeNavigation() {
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
+
+    if (!hamburger || !navLinks) return;
 
     hamburger.addEventListener('click', () => {
         navLinks.classList.toggle('active');
@@ -529,10 +696,12 @@ function initializeNavigation() {
     // Header scroll effect
     window.addEventListener('scroll', () => {
         const header = document.getElementById('header');
-        if (window.scrollY > 100) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
+        if (header) {
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
         }
     });
 
@@ -540,15 +709,22 @@ function initializeNavigation() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
+            const targetId = this.getAttribute('href');
+            if (targetId === '#') return;
+            
+            const target = document.querySelector(targetId);
             if (target) {
                 target.scrollIntoView({
                     behavior: 'smooth',
                     block: 'start'
                 });
                 // Close mobile menu if open
-                navLinks.classList.remove('active');
-                hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+                if (navLinks) {
+                    navLinks.classList.remove('active');
+                    if (hamburger) {
+                        hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+                    }
+                }
             }
         });
     });
@@ -557,6 +733,19 @@ function initializeNavigation() {
 // ==================== DESTINATIONS DISPLAY ====================
 async function initializeDestinations() {
     const destinationGrid = document.getElementById('destination-grid');
+    if (!destinationGrid) return;
+    
+    // Check if lombokDestinations exists
+    if (typeof lombokDestinations === 'undefined') {
+        destinationGrid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 15px;"></i>
+                <h3 style="color: var(--text-primary);">Destinations data not loaded</h3>
+                <p style="color: var(--text-secondary);">Please check if destinations data is available</p>
+            </div>
+        `;
+        return;
+    }
     
     // Show skeleton loading
     destinationGrid.innerHTML = createSkeletonGrid();
@@ -565,6 +754,11 @@ async function initializeDestinations() {
     setTimeout(() => {
         // Clear loading
         destinationGrid.innerHTML = '';
+        
+        if (!lombokDestinations || !Array.isArray(lombokDestinations)) {
+            destinationGrid.innerHTML = '<p>No destinations available</p>';
+            return;
+        }
         
         lombokDestinations.forEach((dest, index) => {
             const card = createDestinationCard(dest, index);
@@ -604,6 +798,10 @@ function createDestinationCard(destination, index) {
     card.setAttribute('data-location', `${destination.lat},${destination.lng}`);
     card.setAttribute('data-name', destination.name);
     card.setAttribute('data-id', destination.id);
+    card.setAttribute('data-price', destination.price);
+    card.setAttribute('data-hours', destination.hours);
+    card.setAttribute('data-category', destination.category);
+    card.setAttribute('data-region', destination.region);
     
     const categoryColors = {
         'beach': '#00d9ff',
@@ -616,6 +814,48 @@ function createDestinationCard(destination, index) {
     
     const color = categoryColors[destination.category] || '#95a5a6';
     
+    // Get current language
+    const savedLang = localStorage.getItem('lombok-language') || 'id';
+    const trans = translations[savedLang];
+    
+    // Format price berdasarkan bahasa
+    const formatPrice = (price) => {
+        if (!price) return trans?.price_free || 'Free';
+        
+        const lowerPrice = price.toLowerCase();
+        if (lowerPrice.includes('gratis') || lowerPrice.includes('free')) {
+            return trans?.price_free || 'Free';
+        } else if (lowerPrice.includes('donasi') || lowerPrice.includes('donation')) {
+            return trans?.price_donation || 'Donation';
+        }
+        return price;
+    };
+    
+    // Format hours berdasarkan bahasa
+    const formatHours = (hours) => {
+        if (!hours) return trans?.hours_24 || '24 hours';
+        
+        if (hours.includes('24 jam') || hours.includes('24 hours') || hours.includes('24 jam WITA')) {
+            return trans?.hours_24 || '24 hours';
+        }
+        return hours;
+    };
+    
+    // Format category berdasarkan bahasa
+    const formatCategory = (category) => {
+        if (!trans) return category;
+        
+        switch(category) {
+            case 'beach': return trans.category_beach || 'Beach';
+            case 'mountain': return trans.category_mountain || 'Mountain';
+            case 'waterfall': return trans.category_waterfall || 'Waterfall';
+            case 'nature': return trans.category_nature || 'Nature';
+            case 'culture': return trans.category_culture || 'Culture';
+            case 'culinary': return trans.category_culinary || 'Culinary';
+            default: return category;
+        }
+    };
+    
     card.innerHTML = `
         <div class="destination-image">
             <img src="${destination.image || getDefaultImageByCategory(destination.category)}" 
@@ -623,7 +863,7 @@ function createDestinationCard(destination, index) {
                  loading="lazy"
                  onerror="this.src='${getDefaultImageByCategory(destination.category)}'">
             <div class="category-badge" style="background: ${color}; position: absolute; top: 15px; right: 15px; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; color: white; text-transform: capitalize;">
-                ${destination.category}
+                ${formatCategory(destination.category)}
             </div>
         </div>
         <div class="destination-info">
@@ -636,18 +876,18 @@ function createDestinationCard(destination, index) {
                     </div>
                     <span class="rating-text">4.2/5</span>
                 </div>
-                <div class="price">${destination.price || 'Free'}</div>
+                <div class="price">${formatPrice(destination.price)}</div>
             </div>
             
             <div class="destination-tags" style="display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;">
-                <span class="tag" style="background: ${color}; padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; color: white; font-weight: 600;">${destination.category}</span>
+                <span class="tag" style="background: ${color}; padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; color: white; font-weight: 600;">${formatCategory(destination.category)}</span>
                 <span class="tag" style="background: var(--glass); padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">${getRegionName(destination.region)}</span>
             </div>
             
             <div class="destination-details">
                 <div class="detail-item">
                     <i class="fas fa-clock"></i>
-                    <span>${destination.hours || '08:00 - 18:00'}</span>
+                    <span>${formatHours(destination.hours)}</span>
                 </div>
                 <div class="detail-item">
                     <i class="fas fa-map-marker-alt"></i>
@@ -657,30 +897,40 @@ function createDestinationCard(destination, index) {
             
             <button class="btn btn-small view-on-map" style="margin-top: 20px; width: 100%;">
                 <i class="fas fa-map-marker-alt"></i>
-                <span>View on Map & Directions</span>
+                <span data-translate="btn_view_map">View on Map</span>
             </button>
         </div>
     `;
     
     // Add event listener
-    card.querySelector('.view-on-map').addEventListener('click', function(e) {
-        e.preventDefault();
-        const location = card.getAttribute('data-location');
-        const name = card.getAttribute('data-name');
-        
-        document.getElementById('destination').value = location;
-        document.getElementById('map-section').scrollIntoView({ 
-            behavior: 'smooth',
-            block: 'start'
+    const viewOnMapBtn = card.querySelector('.view-on-map');
+    if (viewOnMapBtn) {
+        viewOnMapBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const location = card.getAttribute('data-location');
+            const name = card.getAttribute('data-name');
+            
+            const destinationInput = document.getElementById('destination');
+            if (destinationInput) {
+                destinationInput.value = location;
+            }
+            
+            const mapSection = document.getElementById('map-section');
+            if (mapSection) {
+                mapSection.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+            
+            const [lat, lng] = location.split(',').map(coord => parseFloat(coord));
+            if (map && !isNaN(lat) && !isNaN(lng)) {
+                map.flyTo([lat, lng], 13);
+            }
+            
+            showNotification(`📍 ${name} selected! Set your location and click "Get Directions"`);
         });
-        
-        const [lat, lng] = location.split(',').map(coord => parseFloat(coord));
-        if (map) {
-            map.flyTo([lat, lng], 13);
-        }
-        
-        showNotification(`📍 ${name} selected! Set your location and click "Get Directions"`);
-    });
+    }
     
     return card;
 }
@@ -689,6 +939,8 @@ function updateDestinationDropdowns() {
     const destinationSelect = document.getElementById('destination');
     const reviewDestinationSelect = document.getElementById('destination-select');
     
+    if (!destinationSelect || !reviewDestinationSelect) return;
+    
     // Clear existing options except first
     while (destinationSelect.options.length > 1) {
         destinationSelect.remove(1);
@@ -696,6 +948,9 @@ function updateDestinationDropdowns() {
     while (reviewDestinationSelect.options.length > 1) {
         reviewDestinationSelect.remove(1);
     }
+    
+    // Check if destinations exist
+    if (!lombokDestinations || !Array.isArray(lombokDestinations)) return;
     
     // Add destinations to dropdowns
     lombokDestinations.forEach(dest => {
@@ -710,22 +965,29 @@ function updateDestinationDropdowns() {
 // ==================== STATISTICS SYSTEM ====================
 async function loadStatistics() {
     try {
-        const trafficData = await mockAPI.getAllDestinationsTraffic();
-        const regionFilter = document.getElementById('region-filter').value;
-        const trafficFilter = document.getElementById('traffic-filter').value;
-        
-        let filteredData = trafficData;
-        
-        if (regionFilter !== 'all') {
-            filteredData = filteredData.filter(dest => {
-                const destination = lombokDestinations.find(d => d.id === dest.id);
-                return destination?.region === regionFilter;
-            });
+        // Check if mockAPI exists
+        if (typeof mockAPI === 'undefined') {
+            console.error('mockAPI not available');
+            return;
         }
         
-        if (trafficFilter !== 'all') {
+        const trafficData = await mockAPI.getAllDestinationsTraffic();
+        const regionFilter = document.getElementById('region-filter');
+        const trafficFilter = document.getElementById('traffic-filter');
+        
+    let filteredData = trafficData;
+        
+    if (regionFilter && regionFilter.value !== 'all') {
+        // Match the exact region value from the dropdown
+        filteredData = filteredData.filter(dest => {
+            const destination = lombokDestinations.find(d => d.id === dest.id);
+            return destination?.region === regionFilter.value;
+        });
+    }
+        
+        if (trafficFilter && trafficFilter.value !== 'all') {
             filteredData = filteredData.filter(dest => 
-                dest.trafficLevel.level === trafficFilter
+                dest.trafficLevel && dest.trafficLevel.level === trafficFilter.value
             );
         }
         
@@ -734,27 +996,51 @@ async function loadStatistics() {
         
     } catch (error) {
         console.error('Error loading statistics:', error);
+        showNotification('Error loading statistics data', 'error');
     }
 }
 
 function displayStatsCards(destinations) {
     const statsGrid = document.getElementById('stats-grid');
-    statsGrid.innerHTML = '';
+    if (!statsGrid) return;
     
-    if (destinations.length === 0) {
+    const savedLang = localStorage.getItem('lombok-language') || 'id';
+    const trans = translations[savedLang];
+    
+    if (!destinations || destinations.length === 0) {
         statsGrid.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
                 <i class="fas fa-chart-bar" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 15px;"></i>
-                <h3 style="color: var(--text-primary);">No data available</h3>
-                <p style="color: var(--text-secondary);">Try changing your filters</p>
+                <h3 style="color: var(--text-primary);">${trans?.no_results || 'No data available'}</h3>
+                <p style="color: var(--text-secondary);">${trans?.try_again || 'Try changing your filters'}</p>
             </div>
         `;
         return;
     }
     
+    statsGrid.innerHTML = '';
+    
     destinations.forEach(dest => {
         const destinationInfo = lombokDestinations.find(d => d.id === dest.id);
-        const traffic = dest.trafficLevel;
+        const traffic = dest.trafficLevel || { level: 'low', color: '#2ecc71', label: 'Low', icon: '👍' };
+        
+        // Get current language
+        const savedLang = localStorage.getItem('lombok-language') || 'id';
+        const trans = translations[savedLang];
+        
+        // Format category berdasarkan bahasa
+        const formatCategory = (category) => {
+            if (!trans) return category;
+            switch(category) {
+                case 'beach': return trans.category_beach || 'Beach';
+                case 'mountain': return trans.category_mountain || 'Mountain';
+                case 'waterfall': return trans.category_waterfall || 'Waterfall';
+                case 'nature': return trans.category_nature || 'Nature';
+                case 'culture': return trans.category_culture || 'Culture';
+                case 'culinary': return trans.category_culinary || 'Culinary';
+                default: return category;
+            }
+        };
         
         const card = document.createElement('div');
         card.className = 'stats-card';
@@ -767,25 +1053,28 @@ function displayStatsCards(destinations) {
             cursor: pointer;
         `;
         
+        const visitorCount = dest.currentVisitors || 0;
+        const percentage = Math.min(visitorCount, 100);
+        
         card.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
                 <h4 style="margin: 0; color: var(--text-primary); font-size: 1.1rem;">${destinationInfo?.name || dest.name}</h4>
-                <span class="traffic-badge ${traffic.level}" style="background: ${traffic.color};">
-                    ${traffic.icon} ${traffic.label}
+                <span class="traffic-badge ${traffic.level}" style="background: ${traffic.color}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                    ${traffic.icon || '📍'} ${traffic.label}
                 </span>
             </div>
             
             <div style="display: flex; align-items: center; margin-bottom: 15px;">
                 <div style="flex: 1; margin-right: 15px;">
-                    <div style="font-size: 2rem; font-weight: 800; color: ${traffic.color};">${dest.currentVisitors}</div>
-                    <div style="color: var(--text-secondary); font-size: 0.8rem;">Current Visitors</div>
+                    <div style="font-size: 2rem; font-weight: 800; color: ${traffic.color};">${visitorCount}</div>
+                    <div style="color: var(--text-secondary); font-size: 0.8rem;">${trans?.current_visitors || 'Current Visitors'}</div>
                 </div>
                 <div style="width: 60px; height: 60px;">
                     <div style="width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(
-                        ${traffic.color} 0% ${Math.min(dest.currentVisitors, 100)}%,
-                        var(--glass) ${Math.min(dest.currentVisitors, 100)}% 100%
+                        ${traffic.color} 0% ${percentage}%,
+                        var(--glass) ${percentage}% 100%
                     ); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
-                        ${Math.min(dest.currentVisitors, 100)}%
+                        ${percentage}%
                     </div>
                 </div>
             </div>
@@ -793,37 +1082,45 @@ function displayStatsCards(destinations) {
             <div style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 15px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
                     <span><i class="fas fa-map-marker-alt"></i> ${getRegionName(destinationInfo?.region)}</span>
-                    <span><i class="fas fa-tag"></i> ${destinationInfo?.category || 'Unknown'}</span>
+                    <span><i class="fas fa-tag"></i> ${formatCategory(destinationInfo?.category || 'Unknown')}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
-                    <span><i class="fas fa-clock"></i> ${new Date(dest.lastUpdated).toLocaleTimeString()}</span>
-                    <span><i class="fas fa-users"></i> Capacity</span>
+                    <span><i class="fas fa-clock"></i> ${dest.lastUpdated ? new Date(dest.lastUpdated).toLocaleTimeString() : 'N/A'}</span>
+                    <span><i class="fas fa-users"></i> ${trans?.capacity || 'Capacity'}</span>
                 </div>
             </div>
             
-            <div class="traffic-progress">
-                <div class="traffic-fill" style="background: ${traffic.color}; width: ${Math.min(dest.currentVisitors, 100)}%;"></div>
+            <div style="width: 100%; height: 6px; background: var(--glass); border-radius: 3px; overflow: hidden; margin-bottom: 15px;">
+                <div class="traffic-fill" style="background: ${traffic.color}; width: ${percentage}%; height: 100%;"></div>
             </div>
             
             <div style="display: flex; gap: 10px;">
                 <button class="view-on-map-btn" style="flex: 2; background: var(--neon-blue); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; font-weight: 600;">
-                    <i class="fas fa-map-marker-alt"></i> View on Map
+                    <i class="fas fa-map-marker-alt"></i> ${trans?.btn_view_map || 'View on Map'}
                 </button>
                 <button class="record-visit-btn" style="flex: 1; background: var(--glass); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; font-weight: 600;">
-                    <i class="fas fa-user-plus"></i> Check-in
+                    <i class="fas fa-user-plus"></i> ${trans?.btn_check_in || 'Check-in'}
                 </button>
             </div>
         `;
         
-        card.querySelector('.view-on-map-btn').addEventListener('click', function(e) {
-            e.stopPropagation();
-            centerOnDestination(dest);
-        });
+        // Add event listeners
+        const viewOnMapBtn = card.querySelector('.view-on-map-btn');
+        const recordVisitBtn = card.querySelector('.record-visit-btn');
         
-        card.querySelector('.record-visit-btn').addEventListener('click', function(e) {
-            e.stopPropagation();
-            recordVisit(dest.id);
-        });
+        if (viewOnMapBtn) {
+            viewOnMapBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                centerOnDestination(dest);
+            });
+        }
+        
+        if (recordVisitBtn) {
+            recordVisitBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                recordVisit(dest.id);
+            });
+        }
         
         card.addEventListener('click', function() {
             showDestinationDetail(dest.id);
@@ -834,7 +1131,9 @@ function displayStatsCards(destinations) {
 }
 
 function updateStatsSummary(destinations) {
-    const totalVisitors = destinations.reduce((sum, dest) => sum + dest.currentVisitors, 0);
+    if (!destinations || !Array.isArray(destinations)) return;
+    
+    const totalVisitors = destinations.reduce((sum, dest) => sum + (dest.currentVisitors || 0), 0);
     const avgTraffic = destinations.length > 0 ? Math.round(totalVisitors / destinations.length) : 0;
     
     let mostCrowded = null;
@@ -842,28 +1141,32 @@ function updateStatsSummary(destinations) {
     
     if (destinations.length > 0) {
         mostCrowded = destinations.reduce((max, dest) => 
-            dest.currentVisitors > max.currentVisitors ? dest : max
+            (dest.currentVisitors || 0) > (max.currentVisitors || 0) ? dest : max
         );
         leastCrowded = destinations.reduce((min, dest) => 
-            dest.currentVisitors < min.currentVisitors ? dest : min
+            (dest.currentVisitors || 0) < (min.currentVisitors || 0) ? dest : min
         );
     }
     
-    document.getElementById('total-visitors').textContent = totalVisitors.toLocaleString();
-    document.getElementById('avg-traffic').textContent = avgTraffic;
-    document.getElementById('most-crowded').textContent = mostCrowded ? 
-        `${mostCrowded.currentVisitors}` : '-';
-    document.getElementById('least-crowded').textContent = leastCrowded ? 
-        `${leastCrowded.currentVisitors}` : '-';
+    const totalVisitorsEl = document.getElementById('total-visitors');
+    const avgTrafficEl = document.getElementById('avg-traffic');
+    const mostCrowdedEl = document.getElementById('most-crowded');
+    const leastCrowdedEl = document.getElementById('least-crowded');
+    
+    if (totalVisitorsEl) totalVisitorsEl.textContent = totalVisitors.toLocaleString();
+    if (avgTrafficEl) avgTrafficEl.textContent = avgTraffic;
+    if (mostCrowdedEl && mostCrowded) mostCrowdedEl.textContent = mostCrowded.currentVisitors || 0;
+    if (leastCrowdedEl && leastCrowded) leastCrowdedEl.textContent = leastCrowded.currentVisitors || 0;
 }
 
 function centerOnDestination(destination) {
-    if (map) {
+    if (map && destination.lat && destination.lng) {
         map.flyTo([destination.lat, destination.lng], 14, {
             duration: 1,
             easeLinearity: 0.25
         });
         
+        // Highlight the corresponding traffic circle
         trafficCircles.forEach(circle => {
             const latLng = circle.getLatLng();
             if (latLng.lat === destination.lat && latLng.lng === destination.lng) {
@@ -877,6 +1180,12 @@ function centerOnDestination(destination) {
 
 async function recordVisit(destinationId) {
     try {
+        // Check if mockAPI exists
+        if (typeof mockAPI === 'undefined') {
+            showNotification('❌ Mock API not available', 'error');
+            return;
+        }
+        
         const result = await mockAPI.recordVisit(destinationId);
         showNotification('✅ Check-in recorded! Visitor count updated.');
         
@@ -884,6 +1193,7 @@ async function recordVisit(destinationId) {
         updateTrafficHeatmap();
         
     } catch (error) {
+        console.error('Error recording visit:', error);
         showNotification('❌ Failed to record check-in', 'error');
     }
 }
@@ -891,7 +1201,24 @@ async function recordVisit(destinationId) {
 function showDestinationDetail(destinationId) {
     const dest = lombokDestinations.find(d => d.id === destinationId);
     if (dest) {
-        alert(`Detail for ${dest.name}\n\nCategory: ${dest.category}\nRegion: ${getRegionName(dest.region)}\nPrice: ${dest.price || 'Free'}\nHours: ${dest.hours || '24/7'}`);
+        const savedLang = localStorage.getItem('lombok-language') || 'id';
+        const trans = translations[savedLang];
+        
+        const formatCategory = (category) => {
+            if (!trans) return category;
+            switch(category) {
+                case 'beach': return trans.category_beach || 'Beach';
+                case 'mountain': return trans.category_mountain || 'Mountain';
+                case 'waterfall': return trans.category_waterfall || 'Waterfall';
+                case 'nature': return trans.category_nature || 'Nature';
+                case 'culture': return trans.category_culture || 'Culture';
+                case 'culinary': return trans.category_culinary || 'Culinary';
+                default: return category;
+            }
+        };
+        
+        const message = `${dest.name}\n\n${trans?.category_label || 'Category'}: ${formatCategory(dest.category)}\n${trans?.region_label || 'Region'}: ${getRegionName(dest.region)}\n${trans?.price_label || 'Price'}: ${dest.price || 'Free'}\n${trans?.hours_label || 'Hours'}: ${dest.hours || '24/7'}`;
+        alert(message);
     }
 }
 
@@ -904,6 +1231,12 @@ function initializeHeatmap() {
 
 async function updateTrafficHeatmap() {
     try {
+        // Check if mockAPI exists
+        if (typeof mockAPI === 'undefined') {
+            console.log('mockAPI not available, using fallback data');
+            return;
+        }
+        
         const trafficData = await mockAPI.getAllDestinationsTraffic();
         
         // Clear existing circles
@@ -919,7 +1252,7 @@ async function updateTrafficHeatmap() {
         
         // Add new traffic circles
         trafficData.forEach(destination => {
-            const traffic = destination.trafficLevel;
+            const traffic = destination.trafficLevel || { level: 'low', color: '#2ecc71', label: 'Low', icon: '👍' };
             
             if (traffic.level === 'low') lowCount++;
             if (traffic.level === 'high' || traffic.level === 'very-high') highCount++;
@@ -929,7 +1262,7 @@ async function updateTrafficHeatmap() {
                     color: traffic.color,
                     fillColor: traffic.color,
                     fillOpacity: 0.4,
-                    radius: calculateCircleRadius(destination.currentVisitors),
+                    radius: calculateCircleRadius(destination.currentVisitors || 0),
                     className: 'traffic-circle-pulse'
                 }).addTo(map);
                 
@@ -973,17 +1306,20 @@ function calculateCircleRadius(visitorCount) {
 }
 
 function createTrafficPopup(destination, traffic) {
+    const savedLang = localStorage.getItem('lombok-language') || 'id';
+    const trans = translations[savedLang];
+    
     return `
         <div style="background: var(--glass-dark); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); min-width: 220px; backdrop-filter: blur(20px);">
             <h4 style="margin: 0 0 8px 0; color: ${traffic.color}; font-size: 1.1rem;">
-                ${traffic.icon} ${destination.name}
+                ${traffic.icon || '📍'} ${destination.name}
             </h4>
             <div style="color: var(--text-primary); margin-bottom: 8px;">
-                <strong>Status:</strong> ${traffic.label}
+                <strong>${trans?.status || 'Status'}:</strong> ${traffic.label}
             </div>
             <div style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 8px;">
-                <strong>Pengunjung saat ini:</strong> ${destination.currentVisitors} orang<br>
-                <strong>Terakhir update:</strong> ${new Date(destination.lastUpdated).toLocaleTimeString()}
+                <strong>${trans?.current_visitors || 'Current Visitors'}:</strong> ${destination.currentVisitors || 0}<br>
+                <strong>${trans?.last_updated || 'Last Updated'}:</strong> ${destination.lastUpdated ? new Date(destination.lastUpdated).toLocaleTimeString() : 'N/A'}
             </div>
             <div style="display: flex; align-items: center; margin-top: 8px;">
                 <div style="width: 100%; height: 8px; background: linear-gradient(90deg, var(--traffic-low), var(--traffic-medium), var(--traffic-high), var(--traffic-very-high)); border-radius: 4px; margin-right: 10px;"></div>
@@ -996,72 +1332,48 @@ function createTrafficPopup(destination, traffic) {
 // ==================== MAP SYSTEM ====================
 async function initializeMap() {
     try {
+        const mapElement = document.getElementById('map');
+        if (!mapElement) {
+            console.error('Map element not found');
+            return;
+        }
+        
+        // Check if Leaflet is loaded
+        if (typeof L === 'undefined') {
+            showMapFallback();
+            return;
+        }
+        
         // Inisialisasi peta dengan view Lombok
         map = L.map('map', {
             zoomControl: false,
             attributionControl: false
         }).setView([-8.6500, 116.3167], 9);
         
-        // Tambahkan tile layer OpenStreetMap
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        // Tambahkan street tile layer
+        streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
             maxZoom: 20
         }).addTo(map);
+        
+        // Tambahkan satellite tile layer (tapi jangan tampilkan dulu)
+        satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '© Esri, Maxar, Earthstar Geographics',
+            maxZoom: 20
+        });
         
         // Tambahkan kontrol zoom
         L.control.zoom({
             position: 'bottomright'
         }).addTo(map);
         
+        // Tambahkan satellite toggle button
+        addSatelliteToggle();
+        
         // Tambahkan marker destinasi
         addDestinationMarkers();
         
-        // Inisialisasi routing control (FIXED)
-        try {
-            // Pastikan Leaflet.Routing tersedia
-            if (typeof L.Routing !== 'undefined') {
-                routingControl = L.Routing.control({
-                    waypoints: [],
-                    routeWhileDragging: false,
-                    showAlternatives: false,
-                    lineOptions: {
-                        styles: [{color: '#00d9ff', opacity: 0.8, weight: 6}]
-                    },
-                    createMarker: function() { return null; },
-                    show: false,
-                    router: L.Routing.osrmv1({
-                        serviceUrl: 'https://router.project-osrm.org/route/v1'
-                    })
-                }).addTo(map);
-                
-                // Sembunyikan container routing
-                const routingContainer = routingControl.getContainer();
-                if (routingContainer) {
-                    routingContainer.style.display = 'none';
-                }
-            } else {
-                console.log('Leaflet Routing Machine not available, using fallback');
-                routingControl = {
-                    setWaypoints: function() { 
-                        showNotification('🗺️ Route calculation available in full version'); 
-                    },
-                    getContainer: function() {
-                        return { style: { display: 'none' } };
-                    }
-                };
-            }
-        } catch (error) {
-            console.log('Routing initialized in fallback mode:', error);
-            routingControl = {
-                setWaypoints: function() { 
-                    showNotification('🗺️ Showing direct path'); 
-                },
-                getContainer: function() {
-                    return { style: { display: 'none' } };
-                }
-            };
-        }
-        
+        // Setup map event listeners
         setupMapEventListeners();
         updateDestinationDropdowns();
         
@@ -1076,7 +1388,80 @@ async function initializeMap() {
     }
 }
 
+function addSatelliteToggle() {
+    const savedLang = localStorage.getItem('lombok-language') || 'id';
+    const trans = translations[savedLang];
+    
+    // Create satellite toggle button
+    const satelliteToggle = L.control({ position: 'topright' });
+    
+    satelliteToggle.onAdd = function(map) {
+        const div = L.DomUtil.create('div', 'satellite-toggle');
+        div.innerHTML = `
+            <button id="satellite-toggle" class="btn btn-small" style="background: var(--glass-dark); backdrop-filter: blur(20px); border: 2px solid var(--border-color); border-radius: 50px; padding: 10px 20px; cursor: pointer; display: flex; align-items: center; gap: 8px; color: var(--text-primary); font-weight: 600;">
+                <i class="fas fa-satellite"></i>
+                <span>${trans?.btn_satellite || 'Satellite'}</span>
+            </button>
+        `;
+        
+        // Add click event
+        div.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleSatelliteView();
+        });
+        
+        return div;
+    };
+    
+    satelliteToggle.addTo(map);
+    
+    // Add to window for global access
+    window.satelliteToggleBtn = document.getElementById('satellite-toggle');
+}
+
+function toggleSatelliteView() {
+    const savedLang = localStorage.getItem('lombok-language') || 'id';
+    const trans = translations[savedLang];
+    
+    if (currentMapType === 'street') {
+        // Switch to satellite
+        map.removeLayer(streetLayer);
+        satelliteLayer.addTo(map);
+        currentMapType = 'satellite';
+        
+        // Update button text
+        if (window.satelliteToggleBtn) {
+            window.satelliteToggleBtn.innerHTML = `
+                <i class="fas fa-map"></i>
+                <span>${trans?.btn_street || 'Street Map'}</span>
+            `;
+        }
+        
+        showNotification('🛰️ Switched to Satellite View');
+    } else {
+        // Switch to street
+        map.removeLayer(satelliteLayer);
+        streetLayer.addTo(map);
+        currentMapType = 'street';
+        
+        // Update button text
+        if (window.satelliteToggleBtn) {
+            window.satelliteToggleBtn.innerHTML = `
+                <i class="fas fa-satellite"></i>
+                <span>${trans?.btn_satellite || 'Satellite'}</span>
+            `;
+        }
+        
+        showNotification('🗺️ Switched to Street Map View');
+    }
+    
+    // Update language for the button
+    updateButtons(savedLang);
+}
+
 function addDestinationMarkers() {
+    if (!map || typeof L === 'undefined') return;
+    
     const categoryColors = {
         'beach': '#00d9ff', 'mountain': '#ff2a6d', 'waterfall': '#3498db',
         'nature': '#7cfc00', 'culture': '#9d4edd', 'culinary': '#ff6b35'
@@ -1087,11 +1472,16 @@ function addDestinationMarkers() {
         'nature': 'tree', 'culture': 'landmark', 'culinary': 'utensils'
     };
 
+    // Check if destinations exist
+    if (!lombokDestinations || !Array.isArray(lombokDestinations)) return;
+    
     // Tambahkan maksimal 50 marker untuk performa
     const maxMarkers = 50;
     const destinationsToShow = lombokDestinations.slice(0, maxMarkers);
     
     destinationsToShow.forEach(dest => {
+        if (!dest.lat || !dest.lng) return;
+        
         const color = categoryColors[dest.category] || '#95a5a6';
         const iconName = categoryIcons[dest.category] || 'map-marker-alt';
         
@@ -1125,7 +1515,10 @@ function addDestinationMarkers() {
             const button = document.querySelector('.set-as-destination');
             if (button) {
                 button.addEventListener('click', function() {
-                    document.getElementById('destination').value = `${dest.lat},${dest.lng}`;
+                    const destinationInput = document.getElementById('destination');
+                    if (destinationInput) {
+                        destinationInput.value = `${dest.lat},${dest.lng}`;
+                    }
                     calculateRoute();
                     map.closePopup();
                 });
@@ -1147,13 +1540,22 @@ function setupMapEventListeners() {
     });
     
     // Location detection
-    document.getElementById('detect-location').addEventListener('click', detectUserLocation);
+    const detectBtn = document.getElementById('detect-location');
+    if (detectBtn) {
+        detectBtn.addEventListener('click', detectUserLocation);
+    }
     
     // Route calculation
-    document.getElementById('calculate-route').addEventListener('click', calculateRoute);
+    const calculateBtn = document.getElementById('calculate-route');
+    if (calculateBtn) {
+        calculateBtn.addEventListener('click', calculateRoute);
+    }
     
     // Clear route
-    document.getElementById('clear-route').addEventListener('click', clearRoute);
+    const clearBtn = document.getElementById('clear-route');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', clearRoute);
+    }
     
     // Refresh stats button
     const refreshStatsBtn = document.getElementById('refresh-stats');
@@ -1170,7 +1572,10 @@ function setupMapEventListeners() {
                 const location = card.getAttribute('data-location');
                 const name = card.getAttribute('data-name');
                 
-                document.getElementById('destination').value = location;
+                const destinationInput = document.getElementById('destination');
+                if (destinationInput) {
+                    destinationInput.value = location;
+                }
                 
                 // Scroll ke map section
                 const mapSection = document.getElementById('map-section');
@@ -1182,7 +1587,7 @@ function setupMapEventListeners() {
                 }
                 
                 const [lat, lng] = location.split(',').map(coord => parseFloat(coord));
-                if (map) {
+                if (map && !isNaN(lat) && !isNaN(lng)) {
                     map.flyTo([lat, lng], 13);
                 }
                 
@@ -1196,6 +1601,8 @@ function detectUserLocation() {
     const locationInput = document.getElementById('start-location');
     const detectBtn = document.getElementById('detect-location');
     
+    if (!locationInput || !detectBtn) return;
+    
     locationInput.value = '🕵️ Detecting your location...';
     detectBtn.innerHTML = '<div class="loading"></div>';
     detectBtn.disabled = true;
@@ -1203,6 +1610,7 @@ function detectUserLocation() {
     if (!navigator.geolocation) {
         locationInput.value = '❌ Geolocation not supported';
         resetDetectButton();
+        showNotification('📍 Please enter your location manually', 'error');
         return;
     }
     
@@ -1269,7 +1677,7 @@ async function getLocationName(lat, lng) {
     try {
         const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
         const data = await response.json();
-        return data.display_name.split(',')[0] || 'Your Location';
+        return data.display_name ? data.display_name.split(',')[0] : 'Your Location';
     } catch {
         return `Location (${lat.toFixed(2)}, ${lng.toFixed(2)})`;
     }
@@ -1277,7 +1685,7 @@ async function getLocationName(lat, lng) {
 
 function calculateRoute() {
     const destinationSelect = document.getElementById('destination');
-    const destinationValue = destinationSelect.value;
+    const destinationValue = destinationSelect ? destinationSelect.value : '';
     
     if (!userLocation) {
         showNotification('❌ Please set your location first!', 'error');
@@ -1300,40 +1708,13 @@ function calculateRoute() {
         parseFloat(destinationCoords[1])
     ];
     
-    // Coba gunakan routing control jika tersedia
-    if (routingControl && routingControl.setWaypoints) {
-        try {
-            // Tampilkan container routing
-            const container = routingControl.getContainer();
-            if (container && container.style) {
-                container.style.display = 'block';
-            }
-            
-            // Set waypoints
-            routingControl.setWaypoints([
-                L.latLng(userLocation[0], userLocation[1]),
-                L.latLng(destination[0], destination[1])
-            ]);
-            
-            // Zoom ke rute
-            if (map) {
-                const bounds = L.latLngBounds([userLocation, destination]);
-                map.fitBounds(bounds, {
-                    padding: [50, 50]
-                });
-            }
-            
-            showNotification('✅ Route calculated successfully!');
-            
-        } catch (error) {
-            console.error('Routing error:', error);
-            // Fallback: tambahkan garis lurus
-            drawFallbackRoute(userLocation, destination);
-        }
-    } else {
-        // Fallback routing
-        drawFallbackRoute(userLocation, destination);
+    if (isNaN(destination[0]) || isNaN(destination[1])) {
+        showNotification('❌ Invalid destination coordinates!', 'error');
+        return;
     }
+    
+    // Fallback: tambahkan garis lurus
+    drawFallbackRoute(userLocation, destination);
 }
 
 function drawFallbackRoute(start, end) {
@@ -1365,19 +1746,19 @@ function drawFallbackRoute(start, end) {
 }
 
 function clearRoute() {
-    // Hapus routing control
+    // Hapus polyline fallback
+    if (window.currentRouteLine && map) {
+        map.removeLayer(window.currentRouteLine);
+        window.currentRouteLine = null;
+    }
+    
+    // Clear routing control if it exists
     if (routingControl && routingControl.setWaypoints) {
         routingControl.setWaypoints([]);
         const container = routingControl.getContainer();
         if (container && container.style) {
             container.style.display = 'none';
         }
-    }
-    
-    // Hapus polyline fallback
-    if (window.currentRouteLine && map) {
-        map.removeLayer(window.currentRouteLine);
-        window.currentRouteLine = null;
     }
     
     showNotification('🗺️ Route cleared');
@@ -1394,11 +1775,11 @@ function showMapFallback() {
                     The interactive map is temporarily unavailable. Here's a list of featured destinations:
                 </p>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
-                    ${lombokDestinations.slice(0, 5).map(dest => `
+                    ${lombokDestinations && Array.isArray(lombokDestinations) ? lombokDestinations.slice(0, 5).map(dest => `
                         <div style="background: var(--glass-dark); padding: 10px 15px; border-radius: 20px; border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.9rem;">
                             <i class="fas fa-map-marker-alt" style="color: var(--neon-blue);"></i> ${dest.name}
                         </div>
-                    `).join('')}
+                    `).join('') : '<div>No destinations available</div>'}
                 </div>
                 <button onclick="initializeMap()" style="margin-top: 20px; background: var(--neon-blue); color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: 600;">
                     <i class="fas fa-sync-alt"></i> Retry Loading Map
@@ -1410,8 +1791,8 @@ function showMapFallback() {
 
 // ==================== REVIEWS SYSTEM ====================
 function initializeReviews() {
-    const submitReviewBtn = document.getElementById('submit-review');
     const reviewsContainer = document.getElementById('reviews-list');
+    if (!reviewsContainer) return;
     
     // Load existing reviews from localStorage
     const reviews = JSON.parse(localStorage.getItem('lombok-reviews')) || [
@@ -1444,26 +1825,43 @@ function initializeReviews() {
     // Display existing reviews
     displayReviews(reviews);
     
-    if (submitReviewBtn) {
-        submitReviewBtn.addEventListener('click', submitReview);
-    }
+    // Setup review form
+    setupReviewForm();
     
     // Rating stars interaction
     const stars = document.querySelectorAll('.star-rating .star');
     stars.forEach((star, index) => {
         star.addEventListener('click', function() {
             const rating = index + 1;
-            document.getElementById('rating-value').value = rating;
+            const ratingValue = document.getElementById('rating-value');
+            if (ratingValue) {
+                ratingValue.value = rating;
+            }
             updateStarDisplay(rating);
         });
     });
+}
+
+function setupReviewForm() {
+    const reviewForm = document.getElementById('reviewForm');
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitReview();
+        });
+    }
 }
 
 function displayReviews(reviews) {
     const reviewsContainer = document.getElementById('reviews-list');
     if (!reviewsContainer) return;
     
+    const savedLang = localStorage.getItem('lombok-language') || 'id';
+    const trans = translations[savedLang];
+    
     reviewsContainer.innerHTML = '';
+    
+    if (!reviews || !Array.isArray(reviews)) return;
     
     reviews.forEach(review => {
         const reviewCard = document.createElement('div');
@@ -1479,31 +1877,31 @@ function displayReviews(reviews) {
         reviewCard.innerHTML = `
             <div style="display: flex; align-items: center; margin-bottom: 15px;">
                 <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, var(--neon-blue), var(--vibrant-pink)); display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 800; color: white; font-size: 1.2rem;">
-                    ${review.name.charAt(0)}
+                    ${review.name ? review.name.charAt(0) : 'U'}
                 </div>
                 <div style="flex: 1;">
-                    <h4 style="margin: 0; color: var(--text-primary);">${review.name}</h4>
+                    <h4 style="margin: 0; color: var(--text-primary);">${review.name || 'Anonymous'}</h4>
                     <div style="color: var(--text-secondary); font-size: 0.9rem;">
-                        ${review.destination} • ${new Date(review.date).toLocaleDateString('id-ID', { 
+                        ${review.destination || 'Unknown'} • ${review.date ? new Date(review.date).toLocaleDateString('id-ID', { 
                             year: 'numeric', 
                             month: 'long', 
                             day: 'numeric' 
-                        })}
+                        }) : 'Unknown date'}
                     </div>
                 </div>
                 <div style="color: var(--cyber-yellow); font-size: 1.2rem;">
-                    ${generateStarRating(review.rating)}
+                    ${generateStarRating(review.rating || 0)}
                 </div>
             </div>
             <div style="color: var(--text-primary); line-height: 1.6;">
-                ${review.comment}
+                ${review.comment || 'No comment'}
             </div>
             <div style="display: flex; gap: 10px; margin-top: 15px;">
                 <button class="like-btn" style="background: var(--glass); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 6px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8rem;">
-                    <i class="fas fa-thumbs-up"></i> Helpful
+                    <i class="fas fa-thumbs-up"></i> ${trans?.helpful || 'Helpful'}
                 </button>
                 <button class="share-btn" style="background: var(--glass); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 6px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8rem;">
-                    <i class="fas fa-share"></i> Share
+                    <i class="fas fa-share"></i> ${trans?.share || 'Share'}
                 </button>
             </div>
         `;
@@ -1531,7 +1929,10 @@ function submitReview() {
     const ratingInput = document.getElementById('rating-value');
     const commentInput = document.getElementById('review-text');
     
-    if (!nameInput || !destinationSelect || !ratingInput || !commentInput) return;
+    if (!nameInput || !destinationSelect || !ratingInput || !commentInput) {
+        showNotification('❌ Review form elements not found', 'error');
+        return;
+    }
     
     const name = nameInput.value.trim();
     const destination = destinationSelect.value;
@@ -1584,8 +1985,7 @@ function setupFilters() {
     // Search functionality
     if (searchInput) {
         searchInput.addEventListener('input', function() {
-            const selectedCategory = document.querySelector('.category-btn.active')?.getAttribute('data-category') || 'all';
-            filterDestinations(selectedCategory);
+            filterDestinations();
         });
     }
     
@@ -1600,13 +2000,14 @@ function setupFilters() {
         });
     }
     
-    // Filter changes
+    // Region filter change
     if (regionFilter) {
         regionFilter.addEventListener('change', function() {
             loadStatistics();
         });
     }
     
+    // Traffic filter change
     if (trafficFilter) {
         trafficFilter.addEventListener('change', function() {
             loadStatistics();
@@ -1633,22 +2034,22 @@ function filterDestinations(selectedCategory = 'all') {
         activeBtn.classList.add('active');
     }
     
+    // Check if destinations exist
+    if (!lombokDestinations || !Array.isArray(lombokDestinations)) {
+        destinationGrid.innerHTML = '<p>No destinations available</p>';
+        return;
+    }
+    
     const filteredDestinations = lombokDestinations.filter(dest => {
         // Filter by search term
         const matchesSearch = searchTerm === '' || 
-            dest.name.toLowerCase().includes(searchTerm) ||
-            getRegionName(dest.region).toLowerCase().includes(searchTerm);
+            (dest.name && dest.name.toLowerCase().includes(searchTerm)) ||
+            (getRegionName(dest.region) && getRegionName(dest.region).toLowerCase().includes(searchTerm));
         
-        // Filter by region/category
+        // Filter by category/region
         let matchesCategory = true;
         if (selectedCategory !== 'all') {
-            // Check if this is a region filter
-            if (selectedCategory.includes('lombok') || selectedCategory.includes('kota-mataram')) {
-                matchesCategory = dest.region === selectedCategory;
-            } else {
-                // Otherwise it's a category filter (beach, mountain, etc)
-                matchesCategory = dest.category === selectedCategory;
-            }
+            matchesCategory = dest.region === selectedCategory;
         }
         
         return matchesSearch && matchesCategory;
@@ -1657,12 +2058,15 @@ function filterDestinations(selectedCategory = 'all') {
     // Update display
     destinationGrid.innerHTML = '';
     
+    const savedLang = localStorage.getItem('lombok-language') || 'id';
+    const trans = translations[savedLang];
+    
     if (filteredDestinations.length === 0) {
         destinationGrid.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
                 <i class="fas fa-search" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 15px;"></i>
-                <h3 style="color: var(--text-primary);">Tidak ada destinasi ditemukan</h3>
-                <p style="color: var(--text-secondary);">Coba cari dengan kata kunci lain atau pilih kategori yang berbeda</p>
+                <h3 style="color: var(--text-primary);">${trans?.no_results || 'No destinations found'}</h3>
+                <p style="color: var(--text-secondary);">${trans?.try_again || 'Try different keywords or categories'}</p>
             </div>
         `;
     } else {
@@ -1687,13 +2091,15 @@ document.addEventListener('DOMContentLoaded', function() {
         setupFilters();
         initializeReviews();
         
-        // Initialize statistics dengan mock data
+        // Initialize destination statistics
         if (typeof initializeDestinationStats === 'function') {
             initializeDestinationStats();
         }
         
         // Load initial statistics
-        loadStatistics();
+        setTimeout(() => {
+            loadStatistics();
+        }, 500);
         
         // Initialize map setelah delay
         setTimeout(() => {
@@ -1715,7 +2121,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 de: '🌴 Willkommen beim Lombok Live-Dashboard! Erkunden Sie 170+ Ziele in Echtzeit.',
                 ja: '🌴 ロンボクライブダッシュボードへようこそ！170以上の目的地をリアルタイムで探索しましょう。',
                 ko: '🌴 롬복 실시간 대시보드에 오신 것을 환영합니다! 170개 이상의 목적지를 실시간으로 탐험하세요。',
-                ru: '🌴 Добро пожаловать в Живую Панель Ломбока! Исследуйте 170+ направлений в реальном времени.'
+                ru: '🌴 Добро пожаловать в Живую Панель Ломбока! Исследуйте 170+ направлений в реальном времени。'
             };
             
             const message = welcomeMessages[savedLang] || welcomeMessages['en'];
